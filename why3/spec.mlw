@@ -1,0 +1,162 @@
+(**
+
+  {1 A Why3 Specification for VerifyThis Long Term Challenge 2020 [https://verifythis.github.io/]}
+
+  This is largely inspired from an {h <a
+  href="https://formal.iti.kit.edu/~ulbrich/pub/LongTermChallenge.pdf">Event-B
+  specification by Matthias Ulbrich</a>}
+
+  This is focus on the formalisation of the key manager component. The
+  following operations are permitted:
+
+  getExisting Retrieve an existing key from a database. The email must be associated
+to at least one key. There is an indetermistic result if more than one
+key is registered for an e-mail address.
+
+requestAdd Request adding an email+key pair that is not yet in the database. A non-existing
+confirmation code is returned, but the pair is not added yet to the database.
+
+confirmAdd Once the request has been issued, an email with the code is sent out to the issuer.
+If they confirm this code, the addition to the database will take place.
+
+requestDel An existing email+key pair can also be removed from the database by the owner.
+When requesting a removal, the pair is not yet removed from the database, but a confirmation code is issued.
+
+confirmDel Once the request has been issued, an email with the code is sent out to the issuer.
+If they confirm this code, the deletion from the database will take place.
+rerequestDel An open removal request can be reissued, resulting in the same confirmation
+code.
+
+*)
+
+
+module Data
+
+type key
+type email
+type confirmation_code
+
+end
+
+module KeyServer
+
+use Data
+
+type state = {
+  mutable database : set (email,key) (* finite set *)
+  mutable openAdds : confirmation_code -> (email,key) (* partial map *)
+  mutable openDels : confirmation_code -> (email,key) (* partial map *)
+  }
+invariant {
+[@noSpuriousDels] range openDels ⊆ database
+/\
+[@disjointConfirms] dom(openDels) ∩ dom(openAdds) = ∅
+/\
+[@uniqueDels]
+ forall x y. x ∈ dom(openDels) ∧ y ∈ dom(openDels) /\ x <> y ->
+   openDels(x) \inter openDels(y) = empty
+}
+
+let init () : state =
+  {
+   database = empty;
+   openAdds = empty;
+   openDels = empty;
+  }
+
+
+let getExisting (state:state) (email:email) : (result:key)
+  requires { [@guard] email ∈ dom(database)
+  ensures { [@result] result ∈ database[{email }]
+= ()
+
+
+
+let requestAdd (state:state) (email:email) (key:key) : confirmation_code
+  requires {}
+grd1: email 7→ key ∈ / database
+grd2: conf code ∈ / dom(openAdds) ∪ dom(openDels)
+
+then
+act1: openAdds(conf code) := email 7→ key
+
+end
+
+
+
+Event confirmAdd hordinaryi =
+b
+any
+conf code IN
+
+where
+grd1: conf code ∈ dom(openAdds)
+
+then
+act1: openAdds := {conf code} C
+− openAdds
+act2: database := database ∪ openAdds[{conf code}]
+
+2019.09.10 11:22:56
+
+Page 3 of 4
+
+An Event-B Specification of LongTermChallenge
+
+MACHINE KeyServer
+
+end
+Event requestDel hordinaryi =
+b
+any
+email IN
+key IN
+conf code OUT
+
+where
+grd1: email 7→ key ∈ database
+grd2: conf code ∈
+/ dom(openAdds) ∪ dom(openDels)
+grd3: email 7→ key ∈
+/ ran(openDels)
+
+then
+act1: openDels(conf code) := email 7→ key
+end
+Event confirmDel hordinaryi =
+b
+any
+conf code IN
+
+where
+grd1: conf code ∈ dom(openDels)
+
+then
+act1: openDels := {conf code} C
+− openDels
+act2: database := database \ openDels[{conf code}]
+
+end
+Event rerequestDel hordinaryi =
+b
+any
+email IN
+key IN
+conf code OUT
+
+where
+grd1: email 7→ key ∈ database
+grd2: email →
+7 key ∈ ran(openDels)
+grd3: conf code 7→ (email 7→ key) ∈ openDels
+
+then
+skip
+end
+END
+
+2019.09.10 11:22:56
+
+Page 4 of 4
+
+
