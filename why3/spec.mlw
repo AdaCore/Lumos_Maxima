@@ -41,30 +41,41 @@ end
 module KeyServer
 
 use Data
+use option.Option
+clone set.SetApp as S with type elt = (email, key)
 
 type state = {
-  mutable database : set (email,key) (* finite set *)
-  mutable openAdds : confirmation_code -> (email,key) (* partial map *)
-  mutable openDels : confirmation_code -> (email,key) (* partial map *)
+  mutable database : S.set; (* finite set *)
+  mutable openAdds : confirmation_code -> option (email,key); (* partial map *)
+  mutable openDels : confirmation_code -> option (email,key); (* partial map *)
   }
 invariant {
-[@noSpuriousDels] range openDels ⊆ database
+[@noSpuriousDels](* range openDels ⊆ database*)
+(forall c.
+  match (openDels c) with | None -> true | Some p -> S.mem p database
+end)
 /\
-[@disjointConfirms] dom(openDels) ∩ dom(openAdds) = ∅
+[@disjointConfirms] (* dom(openDels) ∩ dom(openAdds) = ∅ *)
+(forall conf. openDels conf = None \/ openAdds conf = None)
 /\
 [@uniqueDels]
- forall x y. x ∈ dom(openDels) ∧ y ∈ dom(openDels) /\ x <> y ->
-   openDels(x) \inter openDels(y) = empty
+ (forall x y.
+   match openDels x, openDels y with
+   | Some px, Some py -> x <> y -> px <> py
+   | _ -> true
+   end)
 }
 
+(* Initialization of keyserver *)
 let init () : state =
   {
-   database = empty;
-   openAdds = empty;
-   openDels = empty;
+   database = S.empty ();
+   openAdds = (fun _c -> None);
+   openDels = (fun _c -> None);
   }
 
-
+(*
+TODO Sylvain
 let getExisting (state:state) (email:email) : (result:key)
   requires { [@guard] email ∈ dom(database)
   ensures { [@result] result ∈ database[{email }]
@@ -106,6 +117,7 @@ Page 3 of 4
 MACHINE KeyServer
 
 end
+TODO Claude
 Event requestDel hordinaryi =
 b
 any
@@ -158,5 +170,6 @@ END
 2019.09.10 11:22:56
 
 Page 4 of 4
+*)
 
-
+end
