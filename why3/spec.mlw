@@ -134,6 +134,7 @@ let ghost getExisting (s:state) (e:email) : (result:option key)
   if S.is_empty s' then None else let (e', k) = S.pick s' in 
     assert {e' = e};
     Some k
+   
 
 (*
 
@@ -231,3 +232,43 @@ Page 4 of 4
 *)
 
 end
+
+module Implem
+
+use KeyServer as K
+clone hashtbl.Hashtbl as Hemail with 
+  type key = K.Data.email
+
+clone hashtbl.Hashtbl as Hcc with
+  type key = K.Data.confirmation_code
+
+use list.Mem as L
+
+  type concrete_state = {
+    database: Hemail.t K.Data.key;
+    confirmAdd: Hcc.t K.Data.(email, key);
+    confirmDel: Hcc.t K.Data.(email, key);
+    ghost model_state: K.state; 
+  }
+  invariant db_inv { forall e k. 
+      K.S.mem (e, k) model_state.K.database <->
+      L.mem k (database.Hemail.contents e) }
+  invariant add_inv { forall c. let l = confirmAdd.Hcc.contents c in
+                       Hcc.List.(match l with
+                       | Nil -> not K.S.mem c model_state.K.openAdds.K.P.dom
+                       | Cons x Nil -> K.S.mem c model_state.K.openAdds.K.P.dom /\ 
+                                       model_state.K.openAdds.K.P.assoc c = x
+                       | _ -> false 
+                       end)}
+  invariant del_inv { forall c. let l = confirmDel.Hcc.contents c in
+                       Hcc.List.(match l with
+                       | Nil -> not K.S.mem c model_state.K.openDels.K.P.dom
+                       | Cons x Nil -> K.S.mem c model_state.K.openDels.K.P.dom /\ 
+                                       model_state.K.openDels.K.P.assoc c = x
+                       | _ -> false 
+                       end)}      
+  by { database = Hemail.create 42; confirmAdd = Hcc.create 42;
+       confirmDel = Hcc.create 42; model_state = K.init () }
+
+end
+

@@ -72,5 +72,12 @@
  </transf>
  </goal>
 </theory>
+<theory name="Implem" proved="true">
+ <goal name="concrete_state&#39;VC" expl="VC for concrete_state" proved="true">
+ <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="456715"/></proof>
+ <proof prover="1" obsolete="true"><result status="unknown" time="0.09" steps="19166"/></proof>
+ <proof prover="2"><result status="valid" time="0.01" steps="133"/></proof>
+ </goal>
+</theory>
 </file>
 </why3session>
