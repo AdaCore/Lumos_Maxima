@@ -2,25 +2,70 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="8">
+<prover id="0" name="Z3" version="4.8.4" timelimit="1" steplimit="0" memlimit="1000"/>
+<prover id="1" name="CVC4" version="1.7" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="Alt-Ergo" version="2.3.0" timelimit="1" steplimit="0" memlimit="1000"/>
-<file>
+<file proved="true">
 <path name=".."/><path name="spec.mlw"/>
-<theory name="KeyServer">
- <goal name="state&#39;VC" expl="VC for state">
+<theory name="KeyServer" proved="true">
+ <goal name="state&#39;VC" expl="VC for state" proved="true">
+ <proof prover="2"><result status="valid" time="0.02" steps="62"/></proof>
  </goal>
  <goal name="init&#39;VC" expl="VC for init" proved="true">
- <proof prover="2"><result status="valid" time="0.01" steps="52"/></proof>
  <transf name="split_vc" proved="true" >
   <goal name="init&#39;VC.0" expl="precondition" proved="true">
   <transf name="split_vc" proved="true" >
-   <goal name="init&#39;VC.0.0" expl="precondition" proved="true">
+   <goal name="init&#39;VC.0.0" expl="VC for init" proved="true">
+   <proof prover="2"><result status="valid" time="0.01" steps="20"/></proof>
+   </goal>
+   <goal name="init&#39;VC.0.1" expl="VC for init" proved="true">
+   <proof prover="2"><result status="valid" time="0.01" steps="10"/></proof>
+   </goal>
+   <goal name="init&#39;VC.0.2" expl="VC for init" proved="true">
    <proof prover="2"><result status="valid" time="0.00" steps="20"/></proof>
    </goal>
-   <goal name="init&#39;VC.0.1" expl="precondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.01" steps="8"/></proof>
+  </transf>
+  </goal>
+ </transf>
+ </goal>
+ <goal name="getExisting&#39;VC" expl="VC for getExisting" proved="true">
+ <proof prover="2"><result status="valid" time="0.19" steps="1184"/></proof>
+ <transf name="split_vc" proved="true" >
+  <goal name="getExisting&#39;VC.0" expl="assertion" proved="true">
+  <proof prover="2"><result status="valid" time="0.01" steps="74"/></proof>
+  </goal>
+  <goal name="getExisting&#39;VC.1" expl="postcondition" proved="true">
+  <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2635697"/></proof>
+  <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="257761"/></proof>
+  <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
+  <transf name="split_vc" proved="true" >
+   <goal name="getExisting&#39;VC.1.0" expl="postcondition" proved="true">
+   <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2323421"/></proof>
+   <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="247892"/></proof>
+   <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
+   <transf name="split_vc" proved="true" >
+    <goal name="getExisting&#39;VC.1.0.0" expl="postcondition" proved="true">
+    <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2900478"/></proof>
+    <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="457943"/></proof>
+    <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="1.02" steps="3931"/></proof>
+    </goal>
+    <goal name="getExisting&#39;VC.1.0.1" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.01" steps="14"/></proof>
+    </goal>
+   </transf>
    </goal>
-   <goal name="init&#39;VC.0.2" expl="precondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.01" steps="30"/></proof>
+   <goal name="getExisting&#39;VC.1.1" expl="postcondition" proved="true">
+   <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2156650"/></proof>
+   <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="255262"/></proof>
+   <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
+   <transf name="split_vc" proved="true" >
+    <goal name="getExisting&#39;VC.1.1.0" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.00" steps="12"/></proof>
+    </goal>
+    <goal name="getExisting&#39;VC.1.1.1" expl="postcondition" proved="true">
+    <proof prover="2"><result status="valid" time="0.01" steps="37"/></proof>
+    </goal>
+   </transf>
    </goal>
   </transf>
   </goal>

@@ -36,52 +36,110 @@ type key
 type email
 type confirmation_code
 
+constant default_key: key
+constant default_email: email
+
+
+end
+
+module PartialMap
+
+use set.Fset as S
+
+type a
+type b
+
+constant default: b
+
+type partial_map =
+{ dom: S.fset a;
+  assoc: a -> b;
+}
+
+constant empty : partial_map = { dom = S.empty; assoc = (fun _ -> default)}
+
 end
 
 module KeyServer
 
 use Data
 use option.Option
-clone set.SetApp as S with type elt = (email, key)
+use set.Fset as S
 
+constant default: (email, key) = (Data.default_email, Data.default_key)
+
+clone PartialMap as P with 
+  type a = confirmation_code, 
+  type b = (email, key), 
+  constant default = default
+
+(*type partial_map 'a 'b =
+{ dom: S.fset 'a;
+  assoc: 'a -> 'b;
+}
+
+constant empty_pm : partial_map 'a 'b
+
+axiom empty_pm_spec: S.is_empty (empty_pm: partial_map 'a 'b).dom
+*)
 type state = {
-  mutable database : S.set; (* finite set *)
-  mutable openAdds : confirmation_code -> option (email,key); (* partial map *)
-  mutable openDels : confirmation_code -> option (email,key); (* partial map *)
+  mutable database : S.fset (email, key); (* finite set *)
+  mutable openAdds : P.partial_map;
+  mutable openDels : P.partial_map;
   }
 invariant {
 [@noSpuriousDels](* range openDels ⊆ database*)
-(forall c.
-  match (openDels c) with | None -> true | Some p -> S.mem p database
-end)
+(forall c. S.mem c openDels.P.dom -> S.mem (openDels.P.assoc c) database)
 /\
 [@disjointConfirms] (* dom(openDels) ∩ dom(openAdds) = ∅ *)
-(forall conf. openDels conf = None \/ openAdds conf = None)
+(forall c. not S.mem c openDels.P.dom \/ not S.mem c openAdds.P.dom)
 /\
 [@uniqueDels]
- (forall x y.
-   match openDels x, openDels y with
-   | Some px, Some py -> x <> y -> px <> py
-   | _ -> true
-   end)
+(forall x y. S.mem x openDels.P.dom -> S.mem y openDels.P.dom -> x <> y ->
+  openDels.P.assoc x <> openDels.P.assoc y)
 }
+by {database = S.empty; openAdds = P.empty; openDels = P.empty } 
 
 (* Initialization of keyserver *)
-let init () : state =
+let ghost init () : state =
   {
-   database = S.empty ();
-   openAdds = (fun _c -> None);
-   openDels = (fun _c -> None);
+   database = S.empty;
+   openAdds = P.empty;
+   openDels = P.empty;
   }
 
+(*5.2  Requirements for retrieving a key
+Name get 
+Parameters
+  e:email
+Result 
+  k:key ∪ {⊥}
+Precondition   
+  none
+Postcondition  
+  If k <>  ⊥, then the returned key k is associated with the given email address e in the database.
+  k = ⊥ iff there exists no entry for the given address e. 
+Effects
+  No changes on the database or pending (add or delete) confirmations.
+  Please note that this operation is deliberately kept indeterministic. 
+  If an e-mail address is associated to more than one key, then the operation may return any key k associated to e *)
+let ghost getExisting (s:state) (e:email) : (result:option key)
+(* requires { [@guard] email ∈ dom(database)*)
+  ensures { [@result] match result with 
+            | None -> forall k: key. not (S.mem (e, k) s.database)
+            | Some k -> S.mem (e, k) s.database
+            end }
+= 
+  let s' = S.filter s.database (fun ek -> let (e',_) = ek in  e = e') in
+  if S.is_empty s' then None else let (e', k) = S.pick s' in 
+    assert {e' = e};
+    Some k
+
 (*
+
+
+
 TODO Sylvain
-let getExisting (state:state) (email:email) : (result:key)
-  requires { [@guard] email ∈ dom(database)
-  ensures { [@result] result ∈ database[{email }]
-= ()
-
-
 
 let requestAdd (state:state) (email:email) (key:key) : confirmation_code
   requires {}
