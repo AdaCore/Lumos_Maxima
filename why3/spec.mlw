@@ -68,9 +68,9 @@ use set.Fset as S
 
 constant default: (email, key) = (Data.default_email, Data.default_key)
 
-clone PartialMap as P with 
-  type a = confirmation_code, 
-  type b = (email, key), 
+clone PartialMap as P with
+  type a = confirmation_code,
+  type b = (email, key),
   constant default = default
 
 (*type partial_map 'a 'b =
@@ -98,7 +98,7 @@ invariant {
 (forall x y. S.mem x openDels.P.dom -> S.mem y openDels.P.dom -> x <> y ->
   openDels.P.assoc x <> openDels.P.assoc y)
 }
-by {database = S.empty; openAdds = P.empty; openDels = P.empty } 
+by {database = S.empty; openAdds = P.empty; openDels = P.empty }
 
 (* Initialization of keyserver *)
 let ghost function init () : state =
@@ -111,51 +111,107 @@ let ghost function init () : state =
 predicate isExisting [@inline:trivial] (s: state) (e: email) (k: key) =
   S.mem (e, k) s.database
 
-(*5.2  Requirements for retrieving a key
-Name get 
+(**
+
+5.2  Requirements for retrieving a key
+
+Name get
+
 Parameters
   e:email
-Result 
+
+Result
   k:key ∪ {⊥}
-Precondition   
+
+Precondition
   none
-Postcondition  
+
+Postcondition
   If k <>  ⊥, then the returned key k is associated with the given email address e in the database.
-  k = ⊥ iff there exists no entry for the given address e. 
+  k = ⊥ iff there exists no entry for the given address e.
+
 Effects
   No changes on the database or pending (add or delete) confirmations.
-  Please note that this operation is deliberately kept indeterministic. 
-  If an e-mail address is associated to more than one key, then the operation may return any key k associated to e *)
+
+  Please note that this operation is deliberately kept indeterministic.
+  If an e-mail address is associated to more than one key, then the operation may return any key k associated to e
+*)
 let ghost function getExisting (s:state) (e:email) : (result:option key)
 (* requires { [@guard] email ∈ dom(database)*)
-  ensures { [@result] match result with 
+  ensures { [@result] match result with
             | None -> forall k: key. not isExisting s e k
             | Some k -> isExisting s e k
             end }
-= 
-  let s' = S.filter s.database (fun ek -> let (e',_) = ek in  e = e') in
-  if S.is_empty s' then None else let (e', k) = S.pick s' in 
-    assert {e' = e};
-    Some k
-   
+  = let s' = S.filter s.database (fun ek -> let (e',_) = ek in  e = e') in
+    if S.is_empty s' then None else let (e', k) = S.pick s' in
+       assert {e' = e};
+       Some k
 
+(**
+
+{3 5.3 Requirements for adding a key}
+
+{h <ul>
+<li>Name
+
+add
+
+<li>Parameters
+
+`e : email`, `k : key`
+
+<li>Result
+
+`c : conf-code`
+
+<li>Precondition
+
+`e` and `k` are well-formed entities. `e` is an e-mail address to which the public key `k` applies.
+The tuple `(e, k)` may or may not already be present in the database or a confirmation for
+`(e, k)` may be pending.
+
+<li>Postcondition
+
+The confirmation code `c` is unique (a confirmation code is unique iff it was previously not used in a pending add- or del-request) in the system. If `(e, k)` is present in the database, ...
+If a request is pending for (e, k), ...
+
+<li>Effects
+
+The database remains unchanged. All pending confirmations are preserved. The only
+effect of the operation is that a confirmation request `(c, k, e)` may be added.
+}
+
+The actual protocol of the server is more complex. The addition function works as follows. Feel free to
+specify and verify the following code
+{h <pre>
+void verifyingAdd(k: KEY) {
+  emails = extractEmailAddressesFromKey(k);
+  for( e : emails ) {
+    token = add(e, k);
+    if (token is valid)
+      sendConfirmationEmail(e, token);
+  }
+}
+</pre>}
+
+The randomness of the confirmation code has not been mentioned here, but is an additional optional
+requirements.
+
+*)
+let requestAdd (s:state) (e:email) (k:key) : confirmation_code
+  requires { true }
 (*
-
-
-
-TODO Sylvain
-
-let requestAdd (state:state) (email:email) (key:key) : confirmation_code
-  requires {}
-grd1: email 7→ key ∈ / database
+(email,key)  not in database
 grd2: conf code ∈ / dom(openAdds) ∪ dom(openDels)
 
 then
 act1: openAdds(conf code) := email 7→ key
 
 end
+*)
+  = absurd
 
-
+(*
 
 Event confirmAdd hordinaryi =
 b
@@ -241,7 +297,7 @@ module Implem
 use option.Option
 
 use KeyServer as K
-clone hashtbl.Hashtbl as Hemail with 
+clone hashtbl.Hashtbl as Hemail with
   type key = K.Data.email
 
 clone hashtbl.Hashtbl as Hcc with
@@ -253,36 +309,36 @@ use list.Mem as L
     database: Hemail.t K.Data.key;
     confirmAdd: Hcc.t K.Data.(email, key);
     confirmDel: Hcc.t K.Data.(email, key);
-    ghost model_state: K.state; 
+    ghost model_state: K.state;
   }
-  invariant db_inv { forall e k. 
+  invariant db_inv { forall e k.
       K.S.mem (e, k) model_state.K.database <->
       L.mem k (database.Hemail.contents e) }
   invariant add_inv { forall c. let l = confirmAdd.Hcc.contents c in
                        Hcc.List.(match l with
                        | Nil -> not K.S.mem c model_state.K.openAdds.K.P.dom
-                       | Cons x Nil -> K.S.mem c model_state.K.openAdds.K.P.dom /\ 
+                       | Cons x Nil -> K.S.mem c model_state.K.openAdds.K.P.dom /\
                                        model_state.K.openAdds.K.P.assoc c = x
-                       | _ -> false 
+                       | _ -> false
                        end)}
   invariant del_inv { forall c. let l = confirmDel.Hcc.contents c in
                        Hcc.List.(match l with
                        | Nil -> not K.S.mem c model_state.K.openDels.K.P.dom
-                       | Cons x Nil -> K.S.mem c model_state.K.openDels.K.P.dom /\ 
+                       | Cons x Nil -> K.S.mem c model_state.K.openDels.K.P.dom /\
                                        model_state.K.openDels.K.P.assoc c = x
-                       | _ -> false 
-                       end)}      
+                       | _ -> false
+                       end)}
   by { database = Hemail.create 42; confirmAdd = Hcc.create 42;
        confirmDel = Hcc.create 42; model_state = K.init () }
 
-let init () : concrete_state 
+let init () : concrete_state
   ensures abs_state { result.model_state = K.init () }
   =
     { database = Hemail.create 42; confirmAdd = Hcc.create 42;
       confirmDel = Hcc.create 42; model_state = K.init () }
-      
+
 exception Not_found
-      
+
 let get (s: concrete_state) (e:K.Data.email) : (result: K.Data.key)
   ensures { K.isExisting s.model_state e result  }
   raises  { Not_found -> forall k. not K.isExisting s.model_state e k}
@@ -290,10 +346,9 @@ let get (s: concrete_state) (e:K.Data.email) : (result: K.Data.key)
   let l = Hemail.find_all s.database e in
   Hemail.List.(match l with
   | Nil -> raise Not_found
-  | Cons k _ -> 
+  | Cons k _ ->
       assert { K.S.mem (e, k) s.model_state.K.database };
       k
   end)
 
 end
-

@@ -3,9 +3,9 @@
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="8">
 <prover id="2" name="Alt-Ergo" version="2.3.0" timelimit="1" steplimit="0" memlimit="1000"/>
-<file format="whyml" proved="true">
+<file format="whyml">
 <path name=".."/><path name="spec.mlw"/>
-<theory name="KeyServer" proved="true">
+<theory name="KeyServer">
  <goal name="state&#39;VC" expl="VC for state" proved="true">
  <proof prover="2"><result status="valid" time="0.02" steps="62"/></proof>
  </goal>
@@ -56,6 +56,8 @@
   </transf>
   </goal>
  </transf>
+ </goal>
+ <goal name="requestAdd&#39;VC" expl="VC for requestAdd">
  </goal>
 </theory>
 <theory name="Implem" proved="true">
