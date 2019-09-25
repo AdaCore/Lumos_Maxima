@@ -2,10 +2,8 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="8">
-<prover id="0" name="Z3" version="4.8.4" timelimit="1" steplimit="0" memlimit="1000"/>
-<prover id="1" name="CVC4" version="1.7" timelimit="1" steplimit="0" memlimit="1000"/>
 <prover id="2" name="Alt-Ergo" version="2.3.0" timelimit="1" steplimit="0" memlimit="1000"/>
-<file proved="true">
+<file format="whyml" proved="true">
 <path name=".."/><path name="spec.mlw"/>
 <theory name="KeyServer" proved="true">
  <goal name="state&#39;VC" expl="VC for state" proved="true">
@@ -29,41 +27,29 @@
  </transf>
  </goal>
  <goal name="getExisting&#39;VC" expl="VC for getExisting" proved="true">
- <proof prover="2"><result status="valid" time="0.19" steps="1184"/></proof>
  <transf name="split_vc" proved="true" >
   <goal name="getExisting&#39;VC.0" expl="assertion" proved="true">
-  <proof prover="2"><result status="valid" time="0.01" steps="74"/></proof>
+  <proof prover="2"><result status="valid" time="0.01" steps="86"/></proof>
   </goal>
   <goal name="getExisting&#39;VC.1" expl="postcondition" proved="true">
-  <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2635697"/></proof>
-  <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="257761"/></proof>
-  <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
   <transf name="split_vc" proved="true" >
    <goal name="getExisting&#39;VC.1.0" expl="postcondition" proved="true">
-   <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2323421"/></proof>
-   <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="247892"/></proof>
-   <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
    <transf name="split_vc" proved="true" >
     <goal name="getExisting&#39;VC.1.0.0" expl="postcondition" proved="true">
-    <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2900478"/></proof>
-    <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="457943"/></proof>
-    <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="1.02" steps="3931"/></proof>
+    <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="2.98" steps="7411"/></proof>
     </goal>
     <goal name="getExisting&#39;VC.1.0.1" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.01" steps="14"/></proof>
+    <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="0.01" steps="14"/></proof>
     </goal>
    </transf>
    </goal>
    <goal name="getExisting&#39;VC.1.1" expl="postcondition" proved="true">
-   <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="2156650"/></proof>
-   <proof prover="1" obsolete="true"><result status="timeout" time="1.00" steps="255262"/></proof>
-   <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
    <transf name="split_vc" proved="true" >
     <goal name="getExisting&#39;VC.1.1.0" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.00" steps="12"/></proof>
+    <proof prover="2"><result status="valid" time="0.01" steps="12"/></proof>
     </goal>
     <goal name="getExisting&#39;VC.1.1.1" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.01" steps="37"/></proof>
+    <proof prover="2"><result status="valid" time="0.00" steps="39"/></proof>
     </goal>
    </transf>
    </goal>
@@ -74,9 +60,23 @@
 </theory>
 <theory name="Implem" proved="true">
  <goal name="concrete_state&#39;VC" expl="VC for concrete_state" proved="true">
- <proof prover="0" obsolete="true"><result status="timeout" time="1.00" steps="456715"/></proof>
- <proof prover="1" obsolete="true"><result status="unknown" time="0.09" steps="19166"/></proof>
- <proof prover="2"><result status="valid" time="0.01" steps="133"/></proof>
+ <proof prover="2"><result status="valid" time="0.01" steps="165"/></proof>
+ </goal>
+ <goal name="init&#39;VC" expl="VC for init" proved="true">
+ <proof prover="2" timelimit="5"><result status="valid" time="0.03" steps="154"/></proof>
+ </goal>
+ <goal name="get&#39;VC" expl="VC for get" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="get&#39;VC.0" expl="exceptional postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.01" steps="29"/></proof>
+  </goal>
+  <goal name="get&#39;VC.1" expl="assertion" proved="true">
+  <proof prover="2"><result status="valid" time="0.01" steps="35"/></proof>
+  </goal>
+  <goal name="get&#39;VC.2" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.01" steps="20"/></proof>
+  </goal>
+ </transf>
  </goal>
 </theory>
 </file>
