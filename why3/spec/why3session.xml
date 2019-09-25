@@ -3,9 +3,9 @@
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="8">
 <prover id="2" name="Alt-Ergo" version="2.3.0" timelimit="1" steplimit="0" memlimit="1000"/>
-<file format="whyml">
+<file format="whyml" proved="true">
 <path name=".."/><path name="spec.mlw"/>
-<theory name="KeyServer">
+<theory name="KeyServer" proved="true">
  <goal name="state&#39;VC" expl="VC for state" proved="true">
  <proof prover="2"><result status="valid" time="0.02" steps="62"/></proof>
  </goal>
@@ -29,7 +29,7 @@
  <goal name="getExisting&#39;VC" expl="VC for getExisting" proved="true">
  <transf name="split_vc" proved="true" >
   <goal name="getExisting&#39;VC.0" expl="assertion" proved="true">
-  <proof prover="2"><result status="valid" time="0.01" steps="86"/></proof>
+  <proof prover="2"><result status="valid" time="0.01" steps="74"/></proof>
   </goal>
   <goal name="getExisting&#39;VC.1" expl="postcondition" proved="true">
   <transf name="split_vc" proved="true" >
@@ -49,7 +49,7 @@
     <proof prover="2"><result status="valid" time="0.01" steps="12"/></proof>
     </goal>
     <goal name="getExisting&#39;VC.1.1.1" expl="postcondition" proved="true">
-    <proof prover="2"><result status="valid" time="0.00" steps="39"/></proof>
+    <proof prover="2"><result status="valid" time="0.00" steps="37"/></proof>
     </goal>
    </transf>
    </goal>
@@ -57,15 +57,30 @@
   </goal>
  </transf>
  </goal>
- <goal name="requestAdd&#39;VC" expl="VC for requestAdd">
+ <goal name="requestAdd&#39;VC" expl="VC for requestAdd" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="requestAdd&#39;VC.0" expl="postcondition" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="requestAdd&#39;VC.0.0" expl="postcondition" proved="true">
+   <proof prover="2"><result status="valid" time="0.01" steps="4"/></proof>
+   </goal>
+  </transf>
+  </goal>
+  <goal name="requestAdd&#39;VC.1" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="91"/></proof>
+  </goal>
+  <goal name="requestAdd&#39;VC.2" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.01" steps="19"/></proof>
+  </goal>
+ </transf>
  </goal>
 </theory>
 <theory name="Implem" proved="true">
  <goal name="concrete_state&#39;VC" expl="VC for concrete_state" proved="true">
- <proof prover="2"><result status="valid" time="0.01" steps="165"/></proof>
+ <proof prover="2"><result status="valid" time="0.01" steps="160"/></proof>
  </goal>
  <goal name="init&#39;VC" expl="VC for init" proved="true">
- <proof prover="2" timelimit="5"><result status="valid" time="0.03" steps="154"/></proof>
+ <proof prover="2" timelimit="5"><result status="valid" time="0.03" steps="162"/></proof>
  </goal>
  <goal name="get&#39;VC" expl="VC for get" proved="true">
  <transf name="split_vc" proved="true" >
@@ -73,7 +88,7 @@
   <proof prover="2"><result status="valid" time="0.01" steps="29"/></proof>
   </goal>
   <goal name="get&#39;VC.1" expl="assertion" proved="true">
-  <proof prover="2"><result status="valid" time="0.01" steps="35"/></proof>
+  <proof prover="2"><result status="valid" time="0.01" steps="34"/></proof>
   </goal>
   <goal name="get&#39;VC.2" expl="postcondition" proved="true">
   <proof prover="2"><result status="valid" time="0.01" steps="20"/></proof>

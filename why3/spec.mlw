@@ -32,6 +32,8 @@ code.
 
 module Data
 
+use set.Fset as S
+
 type key
 type email
 type confirmation_code
@@ -39,6 +41,8 @@ type confirmation_code
 constant default_key: key
 constant default_email: email
 
+val fresh_confirmation_code (s: S.fset confirmation_code) : confirmation_code
+  ensures { not S.mem result s }
 
 end
 
@@ -57,6 +61,11 @@ type partial_map =
 }
 
 constant empty : partial_map = { dom = S.empty; assoc = (fun _ -> default)}
+
+let ghost function update (p: partial_map) (x: a) (v: b) =
+  { dom = S.add x p.dom;
+    assoc = (fun x' -> if x' = x then v else p.assoc x') }
+
 
 end
 
@@ -198,18 +207,27 @@ The randomness of the confirmation code has not been mentioned here, but is an a
 requirements.
 
 *)
-let requestAdd (s:state) (e:email) (k:key) : confirmation_code
+predicate requestAddSpec [@inline:trivial] (sin sout:state) (e:email) (k:key) (c: confirmation_code)
+=
+  not S.mem (e, k) sin.database /\
+  not S.mem c sin.openAdds.P.dom  /\
+  not S.mem c sin.openDels.P.dom /\
+  sout.database = sin.database /\
+  sout.openAdds = P.update sin.openAdds c (e, k)  /\
+  sout.openDels = sin.openDels
+
+let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
   requires { true }
-(*
-(email,key)  not in database
-grd2: conf code ∈ / dom(openAdds) ∪ dom(openDels)
-
-then
-act1: openAdds(conf code) := email 7→ key
-
-end
-*)
-  = absurd
+  ensures { match result with
+            | None -> S.mem (e,k) s.database
+            | Some c -> requestAddSpec (old s) s e k c
+            end }
+  = if S.mem (e,k) s.database then
+      None
+    else
+      let c = Data.fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
+      s.openAdds <- P.update s.openAdds c (e, k);
+      Some c
 
 (*
 
