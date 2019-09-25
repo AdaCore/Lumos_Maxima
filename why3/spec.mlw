@@ -38,11 +38,25 @@ type key
 type email
 type confirmation_code
 
+clone hashtbl.Hashtbl as Hcc with
+  type key = confirmation_code
+
+clone hashtbl.Hashtbl as Hemail with
+  type key = email
+
 constant default_key: key
 constant default_email: email
 
+val compare (k1 k2: key) : bool
+  ensures { result <-> k1 = k2 }
+
 val fresh_confirmation_code (s: S.fset confirmation_code) : confirmation_code
   ensures { not S.mem result s }
+
+(* TODO Make a simpler definition (that takes only one set if possible) *)
+val fresh_confirmation_code_prog (s: Hcc.t 'a) (s': Hcc.t 'b) : confirmation_code
+  ensures { Hcc.([]) s result = Hcc.List.Nil /\
+            Hcc.([]) s' result = Hcc.List.Nil }
 
 end
 
@@ -71,11 +85,11 @@ end
 
 module KeyServer
 
-use Data
+use export Data
 use option.Option
 use set.Fset as S
 
-constant default: (email, key) = (Data.default_email, Data.default_key)
+constant default: (email, key) = (default_email, default_key)
 
 clone PartialMap as P with
   type a = confirmation_code,
@@ -225,7 +239,7 @@ let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
   = if S.mem (e,k) s.database then
       None
     else
-      let c = Data.fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
+      let c = fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
       s.openAdds <- P.update s.openAdds c (e, k);
       Some c
 
@@ -315,58 +329,92 @@ module Implem
 use option.Option
 
 use KeyServer as K
-clone hashtbl.Hashtbl as Hemail with
-  type key = K.Data.email
-
-clone hashtbl.Hashtbl as Hcc with
-  type key = K.Data.confirmation_code
-
-use list.Mem as L
+use list.ListRich as L
+use list.Quant as Lq
 
   type concrete_state = {
-    database: Hemail.t K.Data.key;
-    confirmAdd: Hcc.t K.Data.(email, key);
-    confirmDel: Hcc.t K.Data.(email, key);
+    database: K.Hemail.t K.key;
+    confirmAdd: K.Hcc.t K.(email, key);
+    confirmDel: K.Hcc.t K.(email, key);
     ghost model_state: K.state;
   }
   invariant db_inv { forall e k.
       K.S.mem (e, k) model_state.K.database <->
-      L.mem k (database.Hemail.contents e) }
-  invariant add_inv { forall c. let l = confirmAdd.Hcc.contents c in
-                       Hcc.List.(match l with
+      L.mem k (database.K.Hemail.contents e) }
+  invariant add_inv { forall c. let l = confirmAdd.K.Hcc.contents c in
+                       K.Hcc.List.(match l with
                        | Nil -> not K.S.mem c model_state.K.openAdds.K.P.dom
                        | Cons x Nil -> K.S.mem c model_state.K.openAdds.K.P.dom /\
                                        model_state.K.openAdds.K.P.assoc c = x
                        | _ -> false
                        end)}
-  invariant del_inv { forall c. let l = confirmDel.Hcc.contents c in
-                       Hcc.List.(match l with
+  invariant del_inv { forall c. let l = confirmDel.K.Hcc.contents c in
+                       K.Hcc.List.(match l with
                        | Nil -> not K.S.mem c model_state.K.openDels.K.P.dom
                        | Cons x Nil -> K.S.mem c model_state.K.openDels.K.P.dom /\
                                        model_state.K.openDels.K.P.assoc c = x
                        | _ -> false
                        end)}
-  by { database = Hemail.create 42; confirmAdd = Hcc.create 42;
-       confirmDel = Hcc.create 42; model_state = K.init () }
+  by { database = K.Hemail.create 42; confirmAdd = K.Hcc.create 42;
+       confirmDel = K.Hcc.create 42; model_state = K.init () }
 
 let init () : concrete_state
   ensures abs_state { result.model_state = K.init () }
   =
-    { database = Hemail.create 42; confirmAdd = Hcc.create 42;
-      confirmDel = Hcc.create 42; model_state = K.init () }
+    { database = K.Hemail.create 42; confirmAdd = K.Hcc.create 42;
+      confirmDel = K.Hcc.create 42; model_state = K.init () }
 
 exception Not_found
 
-let get (s: concrete_state) (e:K.Data.email) : (result: K.Data.key)
+let get (s: concrete_state) (e:K.email) : (result: K.key)
   ensures { K.isExisting s.model_state e result  }
   raises  { Not_found -> forall k. not K.isExisting s.model_state e k}
 =
-  let l = Hemail.find_all s.database e in
-  Hemail.List.(match l with
+  let l = K.Hemail.find_all s.database e in
+  K.Hemail.List.(match l with
   | Nil -> raise Not_found
   | Cons k _ ->
       assert { K.S.mem (e, k) s.model_state.K.database };
       k
   end)
+
+exception AlreadyInDb
+
+let add (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
+  requires { true }
+  ensures  { K.requestAddSpec (old s.model_state) s.model_state e k result }
+  raises   { AlreadyInDb -> K.S.mem (e,k) s.model_state.K.database }
+=
+  let l = K.Hemail.find_all s.database e in
+  if Lq.mem (fun k1 k2 -> K.compare k1 k2) k l then
+    raise AlreadyInDb
+  else
+    let c = K.fresh_confirmation_code_prog s.confirmAdd s.confirmDel in
+    K.Hcc.add s.confirmAdd c (e, k);
+    c
+
+(*
+predicate requestAddSpec [@inline:trivial] (sin sout:state) (e:email) (k:key) (c: confirmation_code)
+=
+  not S.mem (e, k) sin.database /\
+  not S.mem c sin.openAdds.P.dom  /\
+  not S.mem c sin.openDels.P.dom /\
+  sout.database = sin.database /\
+  sout.openAdds = P.update sin.openAdds c (e, k)  /\
+  sout.openDels = sin.openDels
+
+let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
+  requires { true }
+  ensures { match result with
+            | None -> S.mem (e,k) s.database
+            | Some c -> requestAddSpec (old s) s e k c
+            end }
+  = if S.mem (e,k) s.database then
+      None
+    else
+      let c = Data.fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
+      s.openAdds <- P.update s.openAdds c (e, k);
+      Some c
+*)
 
 end
