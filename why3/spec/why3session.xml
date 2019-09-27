@@ -39,7 +39,7 @@
    <goal name="getExisting&#39;VC.1.0" expl="postcondition" proved="true">
    <transf name="split_vc" proved="true" >
     <goal name="getExisting&#39;VC.1.0.0" expl="postcondition" proved="true">
-    <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="2.98" steps="7411"/></proof>
+    <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="3.87" steps="7411"/></proof>
     </goal>
     <goal name="getExisting&#39;VC.1.0.1" expl="postcondition" proved="true">
     <proof prover="2" timelimit="10" memlimit="4000"><result status="valid" time="0.01" steps="14"/></proof>
@@ -101,9 +101,9 @@
  <goal name="add&#39;VC" expl="VC for add">
  <transf name="split_vc" >
   <goal name="add&#39;VC.0" expl="exceptional postcondition">
-  <proof prover="0" timelimit="1" memlimit="1000" obsolete="true"><result status="timeout" time="1.00" steps="2037115"/></proof>
-  <proof prover="2" obsolete="true"><result status="timeout" time="1.00"/></proof>
-  <proof prover="3" timelimit="1" memlimit="1000" obsolete="true"><result status="timeout" time="1.00" steps="315916"/></proof>
+  <proof prover="0" timelimit="1" memlimit="1000"><result status="timeout" time="1.00" steps="2150221"/></proof>
+  <proof prover="2"><result status="timeout" time="1.00"/></proof>
+  <proof prover="3" timelimit="1" memlimit="1000"><result status="timeout" time="1.00" steps="315928"/></proof>
   </goal>
   <goal name="add&#39;VC.1" expl="type invariant" proved="true">
   <proof prover="2"><result status="valid" time="0.01" steps="26"/></proof>
@@ -114,14 +114,14 @@
    <proof prover="2"><result status="valid" time="0.02" steps="80"/></proof>
    </goal>
    <goal name="add&#39;VC.2.1" expl="type invariant">
-   <proof prover="0" obsolete="true"><result status="timeout" time="10.00" steps="3289162"/></proof>
-   <proof prover="1" obsolete="true"><result status="timeout" time="10.00" steps="2805361"/></proof>
-   <proof prover="2" timelimit="10" memlimit="4000" obsolete="true"><result status="timeout" time="10.00"/></proof>
+   <proof prover="0"><result status="timeout" time="10.00" steps="4966457"/></proof>
+   <proof prover="1"><result status="timeout" time="10.00" steps="2110578"/></proof>
+   <proof prover="2" timelimit="10" memlimit="4000"><result status="timeout" time="10.00"/></proof>
    </goal>
    <goal name="add&#39;VC.2.2" expl="type invariant">
-   <proof prover="0" obsolete="true"><result status="timeout" time="10.00" steps="3246979"/></proof>
-   <proof prover="2" timelimit="10" memlimit="4000" obsolete="true"><result status="timeout" time="10.00"/></proof>
-   <proof prover="3" obsolete="true"><result status="timeout" time="10.00" steps="2145094"/></proof>
+   <proof prover="0"><result status="timeout" time="10.00" steps="4995593"/></proof>
+   <proof prover="2" timelimit="10" memlimit="4000"><result status="timeout" time="10.00"/></proof>
+   <proof prover="3"><result status="timeout" time="10.00" steps="3079378"/></proof>
    </goal>
    <goal name="add&#39;VC.2.3" expl="type invariant" proved="true">
    <proof prover="2"><result status="valid" time="0.02" steps="199"/></proof>
