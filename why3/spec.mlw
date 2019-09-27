@@ -58,6 +58,9 @@ let ghost function update (p: partial_map) (x: a) (v: b) =
   { dom = S.add x p.dom;
     assoc = (fun x' -> if x' = x then v else p.assoc x') }
 
+let ghost function remove (p: partial_map) (x: a) =
+  { dom = S.remove x p.dom;
+    assoc = p.assoc }
 
 end
 
@@ -104,7 +107,6 @@ end
 (** {2 Specification of the KeyServer}
 
 A module for specifications of the server "backend"
-
 *)
 
 module KeyServer
@@ -291,6 +293,59 @@ let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
       s.openAdds <- P.update s.openAdds c (e, k);
       Some c
 
+(**
+5.4  Requirements for confirming a key
+
+<li> Name
+
+add!
+
+<li> Parameters
+
+c:conf-code
+
+<li> Result
+
+b:bool
+
+<li> Precondition
+
+none
+
+<li> Postcondition
+
+If the confirmation code `c` is valid and associated with a email-key pair `(e, k)`,
+then `(e, k)` are confirmed and will be retrieved in future calls of `get(k)` until deletion.
+The confirmation code `c` becomes invalid after the first use. Return value `b` signals the
+success of this operation.
+
+<li> Effects
+
+The existing entries in the database remain unchanged. All pending confirmations except associated
+one with `c` are preserved. Only `(e, k)` are added to the database if the confirmation code was valid.
+
+*)
+
+predicate confirmAddSpec_success (sin sout: state) (c: confirmation_code) (e: email) (k: key) =
+  S.mem c sin.openAdds.P.dom /\ sin.openAdds.P.assoc c = (e, k) (* TODO is this a predicate *) /\
+  sout.database = S.add (e, k) sin.database /\
+  sout.openAdds = P.remove sin.openAdds c /\ (* TODO ecrire remove *)
+  sout.openDels = sin.openDels
+
+let ghost confirm_add (s: state) (c: confirmation_code) : bool
+  requires { true }
+  ensures { result = true  <-> exists e k. confirmAddSpec_success (old s) s c e k }
+  ensures { result = false <-> not S.mem c (old s).openAdds.P.dom /\ (old s) = s }
+  =
+    if S.mem c s.openAdds.P.dom then
+      let (e, k) = s.openAdds.P.assoc c in
+      s.database <- S.add (e, k) s.database;
+      s.openAdds <- P.remove s.openAdds c;
+      true
+    else
+      false
+
+
 (*
 
 Event confirmAdd hordinaryi =
@@ -432,41 +487,40 @@ let get (s: concrete_state) (e:K.email) : (result: K.key)
 
 exception AlreadyInDb
 
+(* TODO import this lemma *)
+lemma mem_eq: forall eq:'a -> 'a -> bool, l: L.list 'a, v: 'a.
+    (forall x y. eq x y <-> x = y) ->
+    Lq.mem eq v l = L.mem v l
+
 let add (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
   requires { true }
   ensures  { K.requestAddSpec (old s.model_state) s.model_state e k result }
   raises   { AlreadyInDb -> K.S.mem (e,k) s.model_state.K.database }
 =
   let l = K.Hemail.find_all s.database e in
-  if Lq.mem (fun k1 k2 -> K.compare k1 k2) k l then
+  if Lq.mem K.compare k l then
     raise AlreadyInDb
   else
+    assert Hashtb_assert { not L.mem k l };
     let c = K.fresh_confirmation_code_prog s.confirmAdd s.confirmDel in
+    s.model_state.K.openAdds <- K.P.update s.model_state.K.openAdds c (e, k);
     K.Hcc.add s.confirmAdd c (e, k);
     c
 
-(*
-predicate requestAddSpec [@inline:trivial] (sin sout:state) (e:email) (k:key) (c: confirmation_code)
-=
-  not S.mem (e, k) sin.database /\
-  not S.mem c sin.openAdds.P.dom  /\
-  not S.mem c sin.openDels.P.dom /\
-  sout.database = sin.database /\
-  sout.openAdds = P.update sin.openAdds c (e, k)  /\
-  sout.openDels = sin.openDels
-
-let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
+let add_c (s: concrete_state) (c: K.confirmation_code) : bool
   requires { true }
-  ensures { match result with
-            | None -> S.mem (e,k) s.database
-            | Some c -> requestAddSpec (old s) s e k c
-            end }
-  = if S.mem (e,k) s.database then
-      None
-    else
-      let c = Data.fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
-      s.openAdds <- P.update s.openAdds c (e, k);
-      Some c
-*)
+  ensures { result = true <-> exists e k. K.confirmAddSpec_success (old s.model_state) s.model_state c e k }
+  ensures { result = false <-> not K.S.mem c (old s.model_state).K.openAdds.K.P.dom /\ (old s.model_state) = s.model_state }
+=
+  match K.Hcc.find_all s.confirmAdd c with
+  | L.Nil -> false
+  | L.Cons (e, k) L.Nil ->
+      s.model_state.K.database <- K.S.add (e, k) s.model_state.K.database;
+      s.model_state.K.openAdds <- K.P.remove s.model_state.K.openAdds c;
+      K.Hemail.add s.database e k;
+      K.Hcc.remove s.confirmAdd c;
+      true
+  | _ -> absurd
+  end
 
 end
