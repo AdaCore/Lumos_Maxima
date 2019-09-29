@@ -142,10 +142,17 @@ invariant {
 /\
 [@disjointConfirms] (* dom(openDels) ∩ dom(openAdds) = ∅ *)
 (forall c. not S.mem c openDels.P.dom \/ not S.mem c openAdds.P.dom)
+(*
+TODO TBD: not sure I agree with this implementation. 2 cases:
+- A new request erases the former confirmation code: an attacker can ask for confirmation code continuously for 
+  the (email, key) preventing you from removing the key
+- A new request is ignored if one is already there: if you forget the first confirmation code, you can *never* remove your key
+
 /\
 [@uniqueDels]
 (forall x y. S.mem x openDels.P.dom -> S.mem y openDels.P.dom -> x <> y ->
   openDels.P.assoc x <> openDels.P.assoc y)
+*)
 }
 by {database = S.empty; openAdds = P.empty; openDels = P.empty }
 
@@ -345,6 +352,54 @@ let ghost confirm_add (s: state) (c: confirmation_code) : bool
     else
       false
 
+(*
+<li> Name
+
+del
+
+<li> Parameters
+
+e:email, k:key
+
+<li> Result
+
+d:conf-code ∪ {⊥}
+
+<li> Precondition
+
+none
+
+<li> Postcondition  
+
+If `e`, `k` is a correct email and key and this pair is known in the database, then `d` is a valid unique confirmation code—otherwise, `d=⊥`.
+
+<li> Effects
+
+The existing entries in the database remain unchanged.  All pending add- and del-confirmations are preserved. 
+Additionally, a new del-confirmation `(c, e, k)` is registered.
+
+*)
+
+predicate requestdelSpec (sin sout: state) (e: email) (k: key) (c : confirmation_code) =
+  not S.mem c sin.openAdds.P.dom  /\
+  not S.mem c sin.openDels.P.dom /\
+  sout.database = sin.database /\
+  sout.openAdds = sin.openAdds /\
+  sout.openDels = P.update sin.openDels c (e, k)
+
+let ghost requestdel (s: state) (e: email) (k: key) : (d: option confirmation_code) 
+  requires { true }
+  ensures  { match d with 
+             | None -> not S.mem (e, k) s.database
+             | Some c -> S.mem (e, k) s.database /\ requestdelSpec (old s) s e k c
+             end }
+= if S.mem (e, k) s.database then
+    let c = fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
+    s.openDels <- P.update s.openDels c (e, k);
+    Some c
+  else
+    None
+
 
 (*
 
@@ -522,5 +577,21 @@ let add_c (s: concrete_state) (c: K.confirmation_code) : bool
       true
   | _ -> absurd
   end
+
+exception NotInDb
+
+let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code 
+  requires { true }
+  ensures  { K.S.mem (e, k) s.model_state.K.database /\ K.requestdelSpec (old s.model_state) s.model_state e k result }
+  raises   { NotInDb -> not K.S.mem (e, k) s.model_state.K.database }
+= 
+  let l = K.Hemail.find_all s.database e in
+  if Lq.mem K.compare k l then
+    let c = K.fresh_confirmation_code_prog s.confirmAdd s.confirmDel in
+    s.model_state.K.openDels <- K.P.update s.model_state.K.openDels c (e, k);
+    K.Hcc.add s.confirmDel c (e, k);
+    c
+  else
+    raise NotInDb
 
 end
