@@ -8,14 +8,17 @@ use list.List as L
 use list.Mem as M
 use list.Quant as Q
 
-  lemma mem_eq: forall eq:'a -> 'a -> bool, l: L.list 'a, v: 'a.
-    (forall x y. eq x y <-> x = y) ->
-    Q.mem eq v l = M.mem v l
+  let ghost mem_eq (eq:'a -> 'a -> bool) : unit 
+    ensures { forall l: L.list 'a, v: 'a.
+      (forall x y. eq x y <-> x = y) ->
+        Q.mem eq v l = M.mem v l} =
+    ()
 
   let function mem (eq:'a -> 'a -> bool) (x:'a) (l:L.list 'a) : bool
      requires { forall x y. eq x y <-> x = y }
      ensures  { result = M.mem x l }
   =
+    mem_eq eq;
     Q.for_some (eq x) l
 
 end

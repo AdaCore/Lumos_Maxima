@@ -4,4 +4,4 @@
 
 doc: spec.mlw
 	mkdir -p doc
-	why3 doc spec.mlw -o doc
+	why3 doc -L . spec.mlw -o doc

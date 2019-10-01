@@ -540,6 +540,7 @@ use option.Option
 use KeyServer as K
 use list.ListRich as L
 use list.Quant as Lq
+use list_lemma.List_Lemmas as Ll
 
   type concrete_state = {
     database: K.Hemail.t K.key;
@@ -589,16 +590,12 @@ let get (s: concrete_state) (e:K.email) : (result: K.key)
 
 exception AlreadyInDb
 
-(* TODO import this lemma *)
-lemma mem_eq: forall eq:'a -> 'a -> bool, l: L.list 'a, v: 'a.
-    (forall x y. eq x y <-> x = y) ->
-    Lq.mem eq v l = L.mem v l
-
 let add (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
   requires { true }
   ensures  { K.requestAddSpec (old s.model_state) s.model_state e k result }
   raises   { AlreadyInDb -> K.S.mem (e,k) s.model_state.K.database }
 =
+  Ll.mem_eq K.compare;
   let l = K.Hemail.find_all s.database e in
   if Lq.mem K.compare k l then
     raise AlreadyInDb

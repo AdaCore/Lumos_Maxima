@@ -2,23 +2,23 @@
 <!DOCTYPE why3session PUBLIC "-//Why3//proof session v5//EN"
 "http://why3.lri.fr/why3session.dtd">
 <why3session shape_version="8">
-<prover id="2" name="Alt-Ergo" version="2.3.0" timelimit="5" steplimit="0" memlimit="1000"/>
-<file proved="true">
+<prover id="2" name="Alt-Ergo" version="2.3.0" timelimit="1" steplimit="0" memlimit="1000"/>
+<file format="whyml" proved="true">
 <path name=".."/><path name="list_lemma.mlw"/>
 <theory name="List_Lemmas" proved="true">
- <goal name="mem_eq" proved="true">
+ <goal name="mem_eq&#39;VC" expl="VC for mem_eq" proved="true">
  <transf name="introduce_premises" proved="true" >
-  <goal name="mem_eq.0" proved="true">
+  <goal name="mem_eq&#39;VC.0" expl="VC for mem_eq" proved="true">
   <transf name="induction_arg_ty_lex" proved="true" arg1="l">
-   <goal name="mem_eq.0.0" proved="true">
-   <proof prover="2"><result status="valid" time="0.01" steps="67"/></proof>
+   <goal name="mem_eq&#39;VC.0.0" expl="VC for mem_eq" proved="true">
+   <proof prover="2"><result status="valid" time="0.01" steps="77"/></proof>
    </goal>
   </transf>
   </goal>
  </transf>
  </goal>
  <goal name="mem&#39;VC" expl="VC for mem" proved="true">
- <proof prover="2" timelimit="1"><result status="valid" time="0.00" steps="18"/></proof>
+ <proof prover="2"><result status="valid" time="0.00" steps="32"/></proof>
  </goal>
 </theory>
 </file>
