@@ -96,6 +96,9 @@
   </goal>
  </transf>
  </goal>
+ <goal name="get_element&#39;VC" expl="VC for get_element" proved="true">
+ <proof prover="0"><result status="valid" time="0.02" steps="130"/></proof>
+ </goal>
 </theory>
 </file>
 </why3session>
