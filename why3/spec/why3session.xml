@@ -153,102 +153,83 @@
  </goal>
 </theory>
 <theory name="Implem" proved="true">
- <goal name="Sk.eq&#39;VC" expl="VC for eq" proved="true">
- <proof prover="2"><result status="valid" time="0.01" steps="2"/></proof>
- </goal>
  <goal name="concrete_state&#39;VC" expl="VC for concrete_state" proved="true">
- <proof prover="2"><result status="valid" time="0.01" steps="250"/></proof>
+ <proof prover="2"><result status="valid" time="0.01" steps="208"/></proof>
  </goal>
  <goal name="init&#39;VC" expl="VC for init" proved="true">
- <proof prover="2"><result status="valid" time="0.03" steps="253"/></proof>
+ <proof prover="2"><result status="valid" time="0.03" steps="218"/></proof>
  </goal>
  <goal name="get&#39;VC" expl="VC for get" proved="true">
  <transf name="split_vc" proved="true" >
-  <goal name="get&#39;VC.0" expl="exceptional postcondition" proved="true">
-  <transf name="destruct_term" proved="true" arg1="((database s1)[e])">
-   <goal name="get&#39;VC.0.0" expl="exceptional postcondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.02" steps="94"/></proof>
-   </goal>
-   <goal name="get&#39;VC.0.1" expl="exceptional postcondition" proved="true">
-   <proof prover="2"><result status="valid" time="0.01" steps="18"/></proof>
+  <goal name="get&#39;VC.0" expl="postcondition" proved="true">
+  <transf name="split_vc" proved="true" >
+   <goal name="get&#39;VC.0.0" expl="postcondition" proved="true">
+   <proof prover="2"><result status="valid" time="0.02" steps="6"/></proof>
    </goal>
   </transf>
   </goal>
-  <goal name="get&#39;VC.1" expl="precondition" proved="true">
-  <proof prover="2"><result status="valid" time="0.02" steps="20"/></proof>
-  </goal>
-  <goal name="get&#39;VC.2" expl="postcondition" proved="true">
-  <transf name="destruct_term" proved="true" arg1="((database s1)[e])">
-   <goal name="get&#39;VC.2.0" expl="postcondition" proved="true">
-   <proof prover="2" timelimit="5"><result status="valid" time="0.02" steps="86"/></proof>
-   </goal>
-   <goal name="get&#39;VC.2.1" expl="postcondition" proved="true">
-   <proof prover="2" timelimit="5"><result status="valid" time="0.01" steps="18"/></proof>
-   </goal>
-  </transf>
-  </goal>
-  <goal name="get&#39;VC.3" expl="exceptional postcondition" proved="true">
-  <proof prover="2"><result status="valid" time="0.01" steps="20"/></proof>
+  <goal name="get&#39;VC.1" expl="exceptional postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.01" steps="31"/></proof>
   </goal>
  </transf>
  </goal>
- <goal name="add&#39;VC" expl="VC for add">
- <transf name="split_vc" >
-  <goal name="add&#39;VC.0" expl="exceptional postcondition">
-  <proof prover="2"><undone/></proof>
+ <goal name="add&#39;VC" expl="VC for add" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="add&#39;VC.0" expl="exceptional postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="28"/></proof>
   </goal>
-  <goal name="add&#39;VC.1" expl="assertion">
-  <proof prover="2"><undone/></proof>
+  <goal name="add&#39;VC.1" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="69"/></proof>
   </goal>
-  <goal name="add&#39;VC.2" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <goal name="add&#39;VC.2" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="59"/></proof>
   </goal>
-  <goal name="add&#39;VC.3" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <goal name="add&#39;VC.3" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.10" steps="674"/></proof>
   </goal>
-  <goal name="add&#39;VC.4" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <goal name="add&#39;VC.4" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.05" steps="333"/></proof>
   </goal>
-  <goal name="add&#39;VC.5" expl="type invariant">
-  <proof prover="2"><undone/></proof>
-  </goal>
-  <goal name="add&#39;VC.6" expl="postcondition">
-  <proof prover="2"><undone/></proof>
+  <goal name="add&#39;VC.5" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="82"/></proof>
   </goal>
  </transf>
+ </goal>
+ <goal name="Sk.eq&#39;VC" expl="VC for eq">
+ <proof prover="2"><result status="failure" time="0.00"/></proof>
  </goal>
  <goal name="add_c&#39;VC" expl="VC for add_c">
  <transf name="split_vc" >
   <goal name="add_c&#39;VC.0" expl="postcondition">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="add_c&#39;VC.1" expl="postcondition">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="add_c&#39;VC.2" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="add_c&#39;VC.3" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="add_c&#39;VC.4" expl="type invariant">
   <transf name="split_vc" >
    <goal name="add_c&#39;VC.4.0" expl="type invariant">
-   <proof prover="2"><undone/></proof>
+   <proof prover="2"><result status="failure" time="0.00"/></proof>
    </goal>
    <goal name="add_c&#39;VC.4.1" expl="type invariant">
-   <proof prover="2"><undone/></proof>
+   <proof prover="2"><result status="failure" time="0.00"/></proof>
    </goal>
    <goal name="add_c&#39;VC.4.2" expl="type invariant">
-   <proof prover="2"><undone/></proof>
+   <proof prover="2"><result status="failure" time="0.00"/></proof>
    </goal>
    <goal name="add_c&#39;VC.4.3" expl="type invariant">
-   <proof prover="2"><undone/></proof>
+   <proof prover="2"><result status="failure" time="0.00"/></proof>
    </goal>
   </transf>
   </goal>
   <goal name="add_c&#39;VC.5" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="add_c&#39;VC.6" expl="postcondition">
   <transf name="split_vc" >
@@ -257,7 +238,7 @@
     <goal name="add_c&#39;VC.6.0.0">
     <transf name="exists" arg1="x">
      <goal name="add_c&#39;VC.6.0.0.0">
-     <proof prover="2"><undone/></proof>
+     <proof prover="2"><result status="failure" time="0.00"/></proof>
      </goal>
     </transf>
     </goal>
@@ -266,35 +247,35 @@
   </transf>
   </goal>
   <goal name="add_c&#39;VC.7" expl="postcondition">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="add_c&#39;VC.8" expl="unreachable point">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
  </transf>
  </goal>
  <goal name="del_c&#39;VC" expl="VC for del_c">
- <proof prover="2"><undone/></proof>
+ <proof prover="2"><result status="failure" time="0.00"/></proof>
  </goal>
  <goal name="del&#39;VC" expl="VC for del">
  <transf name="split_vc" >
   <goal name="del&#39;VC.0" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="del&#39;VC.1" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="del&#39;VC.2" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="del&#39;VC.3" expl="type invariant">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="del&#39;VC.4" expl="postcondition">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
   <goal name="del&#39;VC.5" expl="exceptional postcondition">
-  <proof prover="2"><undone/></proof>
+  <proof prover="2"><result status="failure" time="0.00"/></proof>
   </goal>
  </transf>
  </goal>
