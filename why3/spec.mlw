@@ -600,7 +600,6 @@ let add (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
     K.Hcc.add s.confirmAdd c (e, k);
     c
 
-(*
 let add_c (s: concrete_state) (c: K.confirmation_code) : bool
   requires { true }
   ensures { result = true <-> exists e k. K.confirmAddSpec_success (old s.model_state) s.model_state c e k }
@@ -611,12 +610,15 @@ let add_c (s: concrete_state) (c: K.confirmation_code) : bool
   | L.Cons (e, k) L.Nil ->
       s.model_state.K.database <- K.S.add (e, k) s.model_state.K.database;
       s.model_state.K.openAdds <- K.P.remove s.model_state.K.openAdds c;
-      K.Hemail.add s.database e k;
+      let t = Ps.{ key = e; elt = k } in
+      if not Ps.mem t s.database then
+        Ps.add t s.database;
       K.Hcc.remove s.confirmAdd c;
       true
   | _ -> absurd
   end
 
+(*
 exception NotInDb
 
 let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
