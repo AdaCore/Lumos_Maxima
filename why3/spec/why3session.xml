@@ -292,33 +292,33 @@
   </goal>
  </transf>
  </goal>
+ <goal name="del&#39;VC" expl="VC for del" proved="true">
+ <transf name="split_vc" proved="true" >
+  <goal name="del&#39;VC.0" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="73"/></proof>
+  </goal>
+  <goal name="del&#39;VC.1" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.03" steps="59"/></proof>
+  </goal>
+  <goal name="del&#39;VC.2" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.06" steps="305"/></proof>
+  </goal>
+  <goal name="del&#39;VC.3" expl="type invariant" proved="true">
+  <proof prover="2"><result status="valid" time="0.11" steps="630"/></proof>
+  </goal>
+  <goal name="del&#39;VC.4" expl="postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="102"/></proof>
+  </goal>
+  <goal name="del&#39;VC.5" expl="exceptional postcondition" proved="true">
+  <proof prover="2"><result status="valid" time="0.02" steps="28"/></proof>
+  </goal>
+ </transf>
+ </goal>
  <goal name="Sk.eq&#39;VC" expl="VC for eq">
  <proof prover="2"><result status="failure" time="0.00"/></proof>
  </goal>
  <goal name="del_c&#39;VC" expl="VC for del_c">
  <proof prover="2"><result status="failure" time="0.00"/></proof>
- </goal>
- <goal name="del&#39;VC" expl="VC for del">
- <transf name="split_vc" >
-  <goal name="del&#39;VC.0" expl="type invariant">
-  <proof prover="2"><result status="failure" time="0.00"/></proof>
-  </goal>
-  <goal name="del&#39;VC.1" expl="type invariant">
-  <proof prover="2"><result status="failure" time="0.00"/></proof>
-  </goal>
-  <goal name="del&#39;VC.2" expl="type invariant">
-  <proof prover="2"><result status="failure" time="0.00"/></proof>
-  </goal>
-  <goal name="del&#39;VC.3" expl="type invariant">
-  <proof prover="2"><result status="failure" time="0.00"/></proof>
-  </goal>
-  <goal name="del&#39;VC.4" expl="postcondition">
-  <proof prover="2"><result status="failure" time="0.00"/></proof>
-  </goal>
-  <goal name="del&#39;VC.5" expl="exceptional postcondition">
-  <proof prover="2"><result status="failure" time="0.00"/></proof>
-  </goal>
- </transf>
  </goal>
 </theory>
 </file>

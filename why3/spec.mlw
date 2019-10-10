@@ -618,7 +618,6 @@ let add_c (s: concrete_state) (c: K.confirmation_code) : bool
   | _ -> absurd
   end
 
-(*
 exception NotInDb
 
 let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
@@ -626,8 +625,8 @@ let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
   ensures  { K.S.mem (e, k) s.model_state.K.database /\ K.requestdelSpec (old s.model_state) s.model_state e k result }
   raises   { NotInDb -> not K.S.mem (e, k) s.model_state.K.database }
 =
-  let l = K.Hemail.find_all s.database e in
-  if Lq.mem K.compare k l then
+  let t = Ps.{ key = e; elt = k } in
+  if Ps.mem t s.database then
     let c = K.fresh_confirmation_code_prog s.confirmAdd s.confirmDel in
     s.model_state.K.openDels <- K.P.update s.model_state.K.openDels c (e, k);
     K.Hcc.add s.confirmDel c (e, k);
@@ -635,7 +634,7 @@ let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
   else
     raise NotInDb
 
-
+(*
 let del_c (s: concrete_state) (c: K.confirmation_code) : bool
   requires { true } (* TODO TBD Requires valid c ? *)
   ensures  { result = true  <-> exists e k. K.confirmDelSpec_success (old s.model_state) s.model_state c e k }
