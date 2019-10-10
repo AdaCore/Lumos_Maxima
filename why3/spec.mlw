@@ -634,7 +634,6 @@ let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
   else
     raise NotInDb
 
-(*
 let del_c (s: concrete_state) (c: K.confirmation_code) : bool
   requires { true } (* TODO TBD Requires valid c ? *)
   ensures  { result = true  <-> exists e k. K.confirmDelSpec_success (old s.model_state) s.model_state c e k }
@@ -644,11 +643,12 @@ let del_c (s: concrete_state) (c: K.confirmation_code) : bool
   | L.Cons (e, k) L.Nil ->
       s.model_state.K.database <- K.S.remove (e, k) s.model_state.K.database;
       s.model_state.K.openDels <- K.P.remove s.model_state.K.openDels c;
-      (* TODO ???
-      K.Hemail.remove s.database k; *)
+      let t = Ps.{ key = e; elt = k } in
+      if Ps.mem t s.database then
+        Ps.remove t s.database;
       K.Hcc.remove s.confirmDel c;
       true
   | _ -> absurd
   end
-*)
+
 end
