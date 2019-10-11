@@ -122,15 +122,6 @@ clone PartialMap as P with
   type b = (email, key),
   constant default = default
 
-(*type partial_map 'a 'b =
-{ dom: S.fset 'a;
-  assoc: 'a -> 'b;
-}
-
-constant empty_pm : partial_map 'a 'b
-
-axiom empty_pm_spec: S.is_empty (empty_pm: partial_map 'a 'b).dom
-*)
 type state = {
   mutable database : S.fset (email, key); (* finite set *)
   mutable openAdds : P.partial_map;
@@ -302,19 +293,21 @@ let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
       Some c
 
 (**
-5.4  Requirements for confirming a key
 
+{h
+<b>5.4  Requirements for confirming a key</b>
+<ul>
 <li> Name
 
 add!
 
 <li> Parameters
 
-c:conf-code
+`c:conf-code`
 
 <li> Result
 
-b:bool
+`b:bool`
 
 <li> Precondition
 
@@ -331,6 +324,9 @@ success of this operation.
 
 The existing entries in the database remain unchanged. All pending confirmations except associated
 one with `c` are preserved. Only `(e, k)` are added to the database if the confirmation code was valid.
+</ul>
+
+}
 
 *)
 
@@ -353,18 +349,23 @@ let ghost confirm_add (s: state) (c: confirmation_code) : bool
     else
       false
 
-(*
+(**
+
+{h
+<b>5.5  Requirements for deleting a key</b>
+<ul>
+
 <li> Name
 
 del
 
 <li> Parameters
 
-e:email, k:key
+`e:email, k:key`
 
 <li> Result
 
-d:conf-code ∪ {⊥}
+`d:conf-code ∪ {⊥}`
 
 <li> Precondition
 
@@ -379,6 +380,9 @@ If `e`, `k` is a correct email and key and this pair is known in the database, t
 The existing entries in the database remain unchanged.  All pending add- and del-confirmations are preserved.
 Additionally, a new del-confirmation `(c, e, k)` is registered.
 
+</ul>
+
+}
 *)
 
 predicate requestdelSpec (sin sout: state) (e: email) (k: key) (c : confirmation_code) =
@@ -401,18 +405,23 @@ let ghost requestdel (s: state) (e: email) (k: key) : (d: option confirmation_co
   else
     None
 
-(*
+(**
+
+{h
+<b>5.6  Requirements for confirming deletion of a key</b>
+<ul>
+
 <li> Name
 
 del!
 
 <li> Parameters
 
-c:conf-code
+`c:conf-code`
 
 <li> Result
 
-b:bool
+`b:bool`
 
 <li> Precondition
 
@@ -427,6 +436,10 @@ The confirmation code `c` becomes invalid after the first use. Return value `b` 
 
 The existing entries in the database remain unchanged, except the associated `(e, k)` is removed. All pending add- and del-confirmations,
 except the associated one with `c`, are preserved. The del-confirmation of `c` is revoked.
+
+</ul>
+
+}
 
 *)
 
@@ -447,85 +460,6 @@ let ghost confirm_del (s: state) (c: confirmation_code) : bool
     true
   else
     false
-
-(*
-
-Event confirmAdd hordinaryi =
-b
-any
-conf code IN
-
-where
-grd1: conf code ∈ dom(openAdds)
-
-then
-act1: openAdds := {conf code} C
-− openAdds
-act2: database := database ∪ openAdds[{conf code}]
-
-2019.09.10 11:22:56
-
-Page 3 of 4
-
-An Event-B Specification of LongTermChallenge
-
-MACHINE KeyServer
-
-end
-TODO Claude
-Event requestDel hordinaryi =
-b
-any
-email IN
-key IN
-conf code OUT
-
-where
-grd1: email 7→ key ∈ database
-grd2: conf code ∈
-/ dom(openAdds) ∪ dom(openDels)
-grd3: email 7→ key ∈
-/ ran(openDels)
-
-then
-act1: openDels(conf code) := email 7→ key
-end
-Event confirmDel hordinaryi =
-b
-any
-conf code IN
-
-where
-grd1: conf code ∈ dom(openDels)
-
-then
-act1: openDels := {conf code} C
-− openDels
-act2: database := database \ openDels[{conf code}]
-
-end
-Event rerequestDel hordinaryi =
-b
-any
-email IN
-key IN
-conf code OUT
-
-where
-grd1: email 7→ key ∈ database
-grd2: email →
-7 key ∈ ran(openDels)
-grd3: conf code 7→ (email 7→ key) ∈ openDels
-
-then
-skip
-end
-END
-
-2019.09.10 11:22:56
-
-Page 4 of 4
-*)
 
 end
 
