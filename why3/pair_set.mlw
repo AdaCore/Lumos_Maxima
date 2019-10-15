@@ -1,3 +1,11 @@
+(** {1 Pair sets}
+
+  This implements sets of pairs which can be both understood in terms of
+  hashtbls and in terms of sets. The function `get_element` allow querying a
+  `key` to get an `elt` but the rest of the implementation assumes that these
+  are sets.
+*)
+
 module Pair_set
 
 use int.Int
