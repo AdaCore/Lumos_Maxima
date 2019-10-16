@@ -1,7 +1,21 @@
 
+SOURCE= spec implem pair_set partial_map simple_hashtbl interface
+SOURCEMLW=$(addsuffix .mlw,$(SOURCE))
 
+all: doc session
 
-
-doc: spec.mlw implem.mlw pair_set.mlw partial_map.mlw simple_hashtbl.mlw interface.mlw
+doc/index.html: $(SOURCEMLW)
 	mkdir -p doc
-	why3 doc -L . spec.mlw implem.mlw pair_set.mlw partial_map.mlw simple_hashtbl.mlw interface.mlw -o doc
+	why3 doc -L . $(SOURCEMLW) -o doc
+
+# TODO doc to be opened on doc/ for the session files
+doc: doc/index.html
+
+SOURCESESSION=$(addprefix doc/, $(addsuffix session.html,$(SOURCE)))
+
+doc/%session.html: %.mlw
+	mkdir -p doc
+	why3 session html -L . -o doc $^
+	mv doc/why3session.html $@
+
+session: $(SOURCESESSION)
