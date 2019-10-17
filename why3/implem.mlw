@@ -6,9 +6,7 @@ use option.Option
 use int.Int
 
 use spec.KeyServer as K
-use list.ListRich as L
-use list.Quant as Lq
-use list_lemma.List_Lemmas as Ll
+use list.List as L
 
 (* Use our own library of associative sets (implemented as hashtbl set) *)
 clone pair_set.Pair_set as Ps with

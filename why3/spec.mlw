@@ -42,9 +42,6 @@ type confirmation_code
 clone hashtbl.Hashtbl as Hcc with
   type key = confirmation_code
 
-clone hashtbl.Hashtbl as Hemail with
-  type key = email
-
 constant default_key: key
   (** an inhabitant of the key type *)
 
