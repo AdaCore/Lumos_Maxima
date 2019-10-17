@@ -437,3 +437,49 @@ module ocaml.Pervasives
   syntax val       succ             "succ %1" prec 4
   syntax val       pred             "pred %1" prec 4
 end
+
+(* TODO unchecked correctness: checked only necessity in the code *)
+module implem.Implem
+
+  syntax val K.Hcc.create "Hashtbl.create %1"
+  syntax val K.Hcc.clear "Hashtbl.clear %1"
+  syntax val K.Hcc.add "Hashtbl.add %1 %2 %3"
+  syntax val K.Hcc.mem "Hashtbl.mem %1 %2"
+  syntax val K.Hcc.find "Hashtbl.find %1 %2"
+  syntax val K.Hcc.find_all "Hashtbl.find_all %1 %2"
+  syntax val K.Hcc.defensive_find "TODO"
+  syntax val K.Hcc.copy "Hashtbl.copy %1"
+  syntax val K.Hcc.remove "Hashtbl.remove %1 %2"
+  syntax val K.Hcc.replace "Hashtbl.replace %1 %2 %3"
+
+
+  syntax val K.compare "TODO"
+  syntax val K.fresh_confirmation_code "TODO"
+  syntax val K.fresh_confirmation_code_prog "TODO"
+
+  syntax val Ps.eq_key "TODO"
+  syntax val Ps.eq_elt "TODO"
+
+  syntax val Ps.Sa.mem "S.mem %1 %2"
+  syntax val Ps.Sa.(==) "S.equal %1 %2"
+  syntax val Ps.Sa.subset "S.subset %1 %2"
+  syntax val Ps.Sa.empty "S.empty"
+  syntax val Ps.Sa.is_empty "S.is_empty %1"
+  syntax val Ps.Sa.add "S.add %1 %2"
+  syntax val Ps.Sa.remove "S.remove %1 %2"
+  syntax val Ps.Sa.union "S.union %1 %2"
+  syntax val Ps.Sa.inter "S.inter %1 %2"
+  syntax val Ps.Sa.diff "S.diff %1 %2"
+  syntax val Ps.Sa.choose "S.choose %1"
+  syntax val Ps.Sa.disjoint "S.disjoint %1 %2"
+  syntax val Ps.Sa.cardinal "S.cardinal %1"
+
+
+end
+
+module interface.IO
+
+  syntax val get_request "TODO"
+  syntax val notify "TODO"
+
+end

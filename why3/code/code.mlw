@@ -1,0 +1,6 @@
+use interface.Real_implem
+
+let f ()
+    diverges
+=
+  main ()

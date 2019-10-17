@@ -19,3 +19,7 @@ doc/%session.html: %.mlw
 	mv doc/why3session.html $@
 
 session: $(SOURCESESSION)
+
+extract:
+	mkdir -p extract
+	why3 extract -L . --recursive --modular -D driver/ocaml_ext.drv code/code.mlw -o extract
