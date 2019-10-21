@@ -41,7 +41,7 @@ module Real_implem
     match req with
     | R.Get e ->
         try R.Got (Implem.get s e) with
-        | Implem.Ps.H.H.NotFound -> R.Got_failure (* TODO rewrite an exception in Implem ? *)
+        | Implem.Ps.Not_found -> R.Got_failure
         end
     | R.Add e k ->
         try R.Add_ask (Implem.add s e k) with

@@ -23,7 +23,7 @@ val eq_elt (x y: elt) : bool
 
 type t = { key: key; elt: elt}
 
-clone simple_hashtbl.H as H with
+clone simple_hashtbl.H as Ha with
   type key = key
 
 clone set.SetApp as Sa with
@@ -31,32 +31,32 @@ clone set.SetApp as Sa with
   val eq = eq_elt
 
 type set = {
-  hash_set : H.t Sa.set;
+  hash_set : Ha.t Sa.set;
   mutable ghost to_fset : fset t }
 invariant Coherence {
   forall e : t. (exists s: Sa.set.
-    hash_set.H.contents e.key = Some s /\ Sa.mem e.elt s) <-> mem e to_fset }
-by { hash_set = H.create 3; to_fset = empty }
+    hash_set.Ha.contents e.key = Some s /\ Sa.mem e.elt s) <-> mem e to_fset }
+by { hash_set = Ha.create 3; to_fset = empty }
 
 meta coercion function to_fset
 
 let mem (e : t) (h: set) : bool
   ensures { result <-> mem e h } =
   try
-    let s = H.defensive_find h.hash_set e.key in
+    let s = Ha.defensive_find h.hash_set e.key in
     Sa.mem e.elt s
-  with H.H.NotFound -> false
+  with Ha.H.NotFound -> false
   end
 
 let empty_set () : set
   ensures { result = empty } =
-  { hash_set = H.create 16; to_fset = empty }
+  { hash_set = Ha.create 16; to_fset = empty }
 
 let clear (s: set) : unit
   ensures { s = empty }
 =
   s.to_fset <- empty;
-  H.clear s.hash_set
+  Ha.clear s.hash_set
 
 (* TODO
 val is_empty (s: set) : bool
@@ -67,20 +67,20 @@ let add (x: t) (s: set) : unit
   requires { not (mem x s) }
   ensures { s = add x (old s) }
 =
-  if H.mem s.hash_set x.key then
+  if Ha.mem s.hash_set x.key then
     begin
-      assert If { H.([]) s.hash_set x.key <> None };
-      let hs = H.find s.hash_set x.key in
+      assert If { Ha.([]) s.hash_set x.key <> None };
+      let hs = Ha.find s.hash_set x.key in
       assert { not mem x.elt hs };
       let new_s = Sa.add x.elt hs in
-      H.replace s.hash_set x.key new_s;
+      Ha.replace s.hash_set x.key new_s;
       s.to_fset <- add x s.to_fset;
     end
   else
     begin
-      assert If { H.([]) s.hash_set x.key = None };
-      assert Pre_add { H.([]) s.hash_set x.key = None };
-      H.add s.hash_set x.key (Sa.singleton x.elt);
+      assert If { Ha.([]) s.hash_set x.key = None };
+      assert Pre_add { Ha.([]) s.hash_set x.key = None };
+      Ha.add s.hash_set x.key (Sa.singleton x.elt);
       s.to_fset <- add x s.to_fset
     end
 
@@ -94,19 +94,23 @@ let remove (x: t) (s: set) : unit
   requires { mem x s }
   ensures  { s = remove x (old s) }
 =
-  let sa = H.find s.hash_set x.key in
+  let sa = Ha.find s.hash_set x.key in
   let new_s = Sa.remove x.elt sa in
   s.to_fset <- remove x s.to_fset;
-  H.replace s.hash_set x.key new_s
+  Ha.replace s.hash_set x.key new_s
 
+exception Not_found
 
 let get_element (k: key) (s: set) : (result: elt)
   ensures { mem { key = k; elt = result } s }
-  raises  { H.H.NotFound -> forall e:elt. not mem {key = k; elt = e } s }
+  raises  { Not_found -> forall e:elt. not mem {key = k; elt = e } s }
 =
-  let sa = H.defensive_find s.hash_set k in
+  let sa = try Ha.defensive_find s.hash_set k with
+           | Ha.H.NotFound -> raise Not_found
+           end
+  in
   if Sa.is_empty sa then
-    raise H.H.NotFound
+    raise Not_found
   else
     Sa.choose sa
 

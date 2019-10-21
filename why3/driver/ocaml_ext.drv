@@ -454,25 +454,50 @@ module implem.Implem
 
 
   syntax val K.compare "TODO"
-  syntax val K.fresh_confirmation_code "TODO"
-  syntax val K.fresh_confirmation_code_prog "TODO"
+  syntax val K.fresh_confirmation_code "((fun _ -> Confirm_code_gen.gen ()) %1)"
+  syntax val K.fresh_confirmation_code_prog "((fun _ _ -> Confirm_code_gen.gen ()) %1 %2)"
 
   syntax val Ps.eq_key "TODO"
   syntax val Ps.eq_elt "TODO"
 
-  syntax val Ps.Sa.mem "S.mem %1 %2"
-  syntax val Ps.Sa.(==) "S.equal %1 %2"
-  syntax val Ps.Sa.subset "S.subset %1 %2"
-  syntax val Ps.Sa.empty "S.empty"
-  syntax val Ps.Sa.is_empty "S.is_empty %1"
-  syntax val Ps.Sa.add "S.add %1 %2"
-  syntax val Ps.Sa.remove "S.remove %1 %2"
-  syntax val Ps.Sa.union "S.union %1 %2"
-  syntax val Ps.Sa.inter "S.inter %1 %2"
-  syntax val Ps.Sa.diff "S.diff %1 %2"
-  syntax val Ps.Sa.choose "S.choose %1"
-  syntax val Ps.Sa.disjoint "S.disjoint %1 %2"
-  syntax val Ps.Sa.cardinal "S.cardinal %1"
+  prelude "module OrdP =
+struct
+  type t = Spec__Data.key
+  let compare (a: t) (b: t) : int =
+    Pervasives.compare a b
+
+end
+
+module Set = Set.Make (OrdP)
+"
+
+  syntax type Ps.Sa.set "Set.t"
+  syntax val Ps.Sa.mem "Set.mem %1 %2"
+  syntax val Ps.Sa.(==) "Set.equal %1 %2"
+  syntax val Ps.Sa.subset "Set.subset %1 %2"
+  syntax val Ps.Sa.empty "(fun _ -> Set.empty) %1"
+  syntax val Ps.Sa.is_empty "Set.is_empty %1"
+  syntax val Ps.Sa.singleton "Set.singleton %1"
+  syntax val Ps.Sa.add "Set.add %1 %2"
+  syntax val Ps.Sa.remove "Set.remove %1 %2"
+  syntax val Ps.Sa.union "Set.union %1 %2"
+  syntax val Ps.Sa.inter "Set.inter %1 %2"
+  syntax val Ps.Sa.diff "Set.diff %1 %2"
+  syntax val Ps.Sa.choose "Set.choose %1"
+  syntax val Ps.Sa.disjoint "Set.disjoint %1 %2"
+  syntax val Ps.Sa.cardinal "Set.cardinal %1"
+
+  syntax type Ps.Ha.H.t "TODO"
+  syntax val Ps.Ha.H.create "Hashtbl.create %1"
+  syntax val Ps.Ha.H.clear "Hashtbl.clear %1"
+  syntax val Ps.Ha.H.add "Hashtbl.add %1 %2 %3"
+  syntax val Ps.Ha.H.mem "Hashtbl.mem %1 %2"
+  syntax val Ps.Ha.H.find "Hashtbl.find %1 %2"
+  syntax val Ps.Ha.H.find_all "Hashtbl.find_all %1 %2"
+  syntax val Ps.Ha.H.defensive_find "Hashtbl.defensive_find %1 %2"
+  syntax val Ps.Ha.H.copy "Hashtbl.copy %1"
+  syntax val Ps.Ha.H.remove "Hashtbl.remove %1 %2"
+  syntax val Ps.Ha.H.replace "Hashtbl.replace %1 %2 %3"
 
 
 end

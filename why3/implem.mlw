@@ -47,7 +47,7 @@ let init () : concrete_state
 
 let get (s: concrete_state) (e:K.email) : (result: K.key)
   ensures { K.isExisting s.model_state e result  }
-  raises  { Ps.H.H.NotFound -> forall k. not K.isExisting s.model_state e k}
+  raises  { Ps.Not_found -> forall k. not K.isExisting s.model_state e k}
 =
   Ps.get_element e s.database
 
