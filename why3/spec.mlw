@@ -1,0 +1,422 @@
+(**
+
+  {1 A Why3 Specification for VerifyThis Long Term Challenge 2020 [https://verifythis.github.io/]}
+
+  (not true anymore) This is largely inspired from an {h <a
+  href="https://formal.iti.kit.edu/~ulbrich/pub/LongTermChallenge.pdf">Event-B
+  specification by Matthias Ulbrich</a>}
+
+  This is focus on the formalisation of the key manager component. The
+  following operations are permitted:
+
+  getExisting Retrieve an existing key from a database. The email must be associated
+to at least one key. There is an indetermistic result if more than one
+key is registered for an e-mail address.
+
+requestAdd Request adding an email+key pair that is not yet in the database. A non-existing
+confirmation code is returned, but the pair is not added yet to the database.
+
+confirmAdd Once the request has been issued, an email with the code is sent out to the issuer.
+If they confirm this code, the addition to the database will take place.
+
+requestDel An existing email+key pair can also be removed from the database by the owner.
+When requesting a removal, the pair is not yet removed from the database, but a confirmation code is issued.
+
+confirmDel Once the request has been issued, an email with the code is sent out to the issuer.
+If they confirm this code, the deletion from the database will take place.
+rerequestDel An open removal request can be reissued, resulting in the same confirmation
+code.
+
+*)
+
+(** {2 Module for the data types} *)
+
+module Data
+
+use set.Fset as S
+
+type key
+type email
+type confirmation_code
+
+clone hashtbl.Hashtbl as Hcc with
+  type key = confirmation_code
+
+constant default_key: key
+  (** an inhabitant of the key type *)
+
+constant default_email: email
+  (** an inhabitant of the email type *)
+
+val compare (k1 k2: key) : bool
+  ensures { result <-> k1 = k2 }
+
+val fresh_confirmation_code (s: S.fset confirmation_code) : confirmation_code
+  ensures { not S.mem result s }
+
+(* TODO Make a simpler definition (that takes only one set if possible) *)
+val fresh_confirmation_code_prog (s: Hcc.t 'a) (s': Hcc.t 'b) : confirmation_code
+  ensures { Hcc.([]) s result = Hcc.List.Nil /\
+            Hcc.([]) s' result = Hcc.List.Nil }
+
+end
+
+
+(** {2 Specification of the KeyServer}
+
+A module for specifications of the server "backend"
+*)
+
+module KeyServer
+
+use export Data
+use option.Option
+use set.Fset as S
+
+constant default: (email, key) = (default_email, default_key)
+
+clone partial_map.PartialMap as P with
+  type a = confirmation_code,
+  type b = (email, key),
+  constant default = default
+
+type state = {
+  mutable database : S.fset (email, key); (* finite set *)
+  mutable openAdds : P.partial_map;
+  mutable openDels : P.partial_map;
+  }
+invariant {
+(* TODO TBD: This should not be put at this level
+[@noSpuriousDels](* range openDels ⊆ database*)
+(forall c. S.mem c openDels.P.dom -> S.mem (openDels.P.assoc c) database)
+/\ *)
+[@disjointConfirms] (* dom(openDels) ∩ dom(openAdds) = ∅ *)
+(forall c. not S.mem c openDels.P.dom \/ not S.mem c openAdds.P.dom)
+(*
+TODO TBD: not sure I agree with this implementation. 2 cases:
+- A new request erases the former confirmation code: an attacker can ask for confirmation code continuously for
+  the (email, key) preventing you from removing the key
+- A new request is ignored if one is already there: if you forget the first confirmation code, you can *never* remove your key
+
+/\
+[@uniqueDels]
+(forall x y. S.mem x openDels.P.dom -> S.mem y openDels.P.dom -> x <> y ->
+  openDels.P.assoc x <> openDels.P.assoc y)
+*)
+}
+by {database = S.empty; openAdds = P.empty; openDels = P.empty }
+
+(* Initialization of keyserver *)
+let ghost function init () : state =
+  {
+   database = S.empty;
+   openAdds = P.empty;
+   openDels = P.empty;
+  }
+
+(**
+
+{3 Retrieving a key}
+
+
+
+{h
+<b>5.2  Requirements for retrieving a key</b>
+
+<ul>
+<li>Name
+
+get
+
+<li>Parameters
+
+  e:email
+
+<li>Result
+
+  k:key ∪ {⊥}
+
+<li>Precondition
+
+  none
+
+<li>Postcondition
+
+  If k <>  ⊥, then the returned key k is associated with the given email address e in the database.
+  k = ⊥ iff there exists no entry for the given address e.
+
+<li>Effects
+
+  No changes on the database or pending (add or delete) confirmations.
+
+  Please note that this operation is deliberately kept indeterministic.
+  If an e-mail address is associated to more than one key, then the operation may return any key k associated to e
+
+</ul>
+}
+
+*)
+
+predicate isExisting [@inline:trivial] (s: state) (e: email) (k: key) =
+  S.mem (e, k) s.database
+
+let ghost function getExisting (s:state) (e:email) : (result:option key)
+(* requires { [@guard] email ∈ dom(database)*)
+  ensures { [@result] match result with
+            | None -> forall k: key. not isExisting s e k
+            | Some k -> isExisting s e k
+            end }
+  = let s' = S.filter s.database (fun ek -> let (e',_) = ek in  e = e') in
+    if S.is_empty s' then None else let (e', k) = S.pick s' in
+       assert {e' = e};
+       Some k
+
+(**
+
+{3 Adding a key}
+
+
+{h
+<b>5.3 Requirements for adding a key</b>
+<ul>
+<li>Name
+
+add
+
+<li>Parameters
+
+`e : email`, `k : key`
+
+<li>Result
+
+`c : conf-code`
+
+<li>Precondition
+
+`e` and `k` are well-formed entities. `e` is an e-mail address to which the public key `k` applies.
+The tuple `(e, k)` may or may not already be present in the database or a confirmation for
+`(e, k)` may be pending.
+
+<li>Postcondition
+
+The confirmation code `c` is unique (a confirmation code is unique iff it was previously not used in a pending add- or del-request) in the system. If `(e, k)` is present in the database, ...
+If a request is pending for (e, k), ...
+
+<li>Effects
+
+The database remains unchanged. All pending confirmations are preserved. The only
+effect of the operation is that a confirmation request `(c, k, e)` may be added.
+
+</ul>
+}
+
+The actual protocol of the server is more complex. The addition function works as follows. Feel free to
+specify and verify the following code
+{h <pre>
+void verifyingAdd(k: KEY) {
+  emails = extractEmailAddressesFromKey(k);
+  for( e : emails ) {
+    token = add(e, k);
+    if (token is valid)
+      sendConfirmationEmail(e, token);
+  }
+}
+</pre>}
+
+The randomness of the confirmation code has not been mentioned here, but is an additional optional
+requirements.
+
+*)
+
+predicate requestAddSpec [@inline:trivial] (sin sout:state) (e:email) (k:key) (c: confirmation_code)
+=
+  not S.mem (e, k) sin.database /\
+  not S.mem c sin.openAdds.P.dom  /\
+  not S.mem c sin.openDels.P.dom /\
+  sout.database = sin.database /\
+  sout.openAdds = P.update sin.openAdds c (e, k)  /\
+  sout.openDels = sin.openDels
+
+let ghost requestAdd (s:state) (e:email) (k:key) : option confirmation_code
+  requires { true }
+  ensures { match result with
+            | None -> S.mem (e,k) s.database
+            | Some c -> requestAddSpec (old s) s e k c
+            end }
+  = if S.mem (e,k) s.database then
+      None
+    else
+      let c = fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
+      s.openAdds <- P.update s.openAdds c (e, k);
+      Some c
+
+(**
+
+{h
+<b>5.4  Requirements for confirming a key</b>
+<ul>
+<li> Name
+
+add!
+
+<li> Parameters
+
+`c:conf-code`
+
+<li> Result
+
+`b:bool`
+
+<li> Precondition
+
+none
+
+<li> Postcondition
+
+If the confirmation code `c` is valid and associated with a email-key pair `(e, k)`,
+then `(e, k)` are confirmed and will be retrieved in future calls of `get(k)` until deletion.
+The confirmation code `c` becomes invalid after the first use. Return value `b` signals the
+success of this operation.
+
+<li> Effects
+
+The existing entries in the database remain unchanged. All pending confirmations except associated
+one with `c` are preserved. Only `(e, k)` are added to the database if the confirmation code was valid.
+</ul>
+
+}
+
+*)
+
+predicate confirmAddSpec_success (sin sout: state) (c: confirmation_code) (e: email) (k: key) =
+  S.mem c sin.openAdds.P.dom /\ sin.openAdds.P.assoc c = (e, k) /\
+  sout.database = S.add (e, k) sin.database /\
+  sout.openAdds = P.remove sin.openAdds c /\
+  sout.openDels = sin.openDels
+
+let ghost confirm_add (s: state) (c: confirmation_code) : bool
+  requires { true }
+  ensures { result = true  <-> exists e k. confirmAddSpec_success (old s) s c e k }
+  ensures { result = false <-> not S.mem c (old s).openAdds.P.dom /\ (old s) = s }
+  =
+    if S.mem c s.openAdds.P.dom then
+      let (e, k) = s.openAdds.P.assoc c in
+      s.database <- S.add (e, k) s.database;
+      s.openAdds <- P.remove s.openAdds c;
+      true
+    else
+      false
+
+(**
+
+{h
+<b>5.5  Requirements for deleting a key</b>
+<ul>
+
+<li> Name
+
+del
+
+<li> Parameters
+
+`e:email, k:key`
+
+<li> Result
+
+`d:conf-code ∪ {⊥}`
+
+<li> Precondition
+
+none
+
+<li> Postcondition
+
+If `e`, `k` is a correct email and key and this pair is known in the database, then `d` is a valid unique confirmation code—otherwise, `d=⊥`.
+
+<li> Effects
+
+The existing entries in the database remain unchanged.  All pending add- and del-confirmations are preserved.
+Additionally, a new del-confirmation `(c, e, k)` is registered.
+
+</ul>
+
+}
+*)
+
+predicate requestdelSpec (sin sout: state) (e: email) (k: key) (c : confirmation_code) =
+  not S.mem c sin.openAdds.P.dom  /\
+  not S.mem c sin.openDels.P.dom /\
+  sout.database = sin.database /\
+  sout.openAdds = sin.openAdds /\
+  sout.openDels = P.update sin.openDels c (e, k)
+
+let ghost requestdel (s: state) (e: email) (k: key) : (d: option confirmation_code)
+  requires { true }
+  ensures  { match d with
+             | None -> not S.mem (e, k) s.database
+             | Some c -> S.mem (e, k) s.database /\ requestdelSpec (old s) s e k c
+             end }
+= if S.mem (e, k) s.database then
+    let c = fresh_confirmation_code (S.union s.openAdds.P.dom s.openDels.P.dom) in
+    s.openDels <- P.update s.openDels c (e, k);
+    Some c
+  else
+    None
+
+(**
+
+{h
+<b>5.6  Requirements for confirming deletion of a key</b>
+<ul>
+
+<li> Name
+
+del!
+
+<li> Parameters
+
+`c:conf-code`
+
+<li> Result
+
+`b:bool`
+
+<li> Precondition
+
+none
+
+<li> Postcondition
+
+If the confirmation code `c` is valid and is associated with an email-key pair `(e, k)`, then `(e, k)` are removed from the key database.
+The confirmation code `c` becomes invalid after the first use. Return value `b` signals the success of this operation.
+
+<li> Effects
+
+The existing entries in the database remain unchanged, except the associated `(e, k)` is removed. All pending add- and del-confirmations,
+except the associated one with `c`, are preserved. The del-confirmation of `c` is revoked.
+
+</ul>
+
+}
+
+*)
+
+predicate confirmDelSpec_success (sin sout: state) (c: confirmation_code) (e: email) (k: key) =
+  S.mem c sin.openDels.P.dom /\ sin.openDels.P.assoc c = (e, k) /\
+  sout.database = S.remove (e, k) sin.database /\
+  sout.openAdds = sin.openAdds /\
+  sout.openDels = P.remove sin.openDels c
+
+let ghost confirm_del (s: state) (c: confirmation_code) : bool
+  requires { true } (* TODO TBD Requires valid c ? *)
+  ensures  { result = true  <-> exists e k. confirmDelSpec_success (old s) s c e k }
+  ensures  { result = false <-> not S.mem c (old s).openDels.P.dom /\ (old s) = s }
+= if S.mem c s.openDels.P.dom then
+    let (e, k) = s.openDels.P.assoc c in
+    s.database <- S.remove (e, k) s.database;
+    s.openDels <- P.remove s.openDels c;
+    true
+  else
+    false
+
+end

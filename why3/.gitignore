@@ -1,0 +1,3 @@
+*.bak
+_build/
+doc/

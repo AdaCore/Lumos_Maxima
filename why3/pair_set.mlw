@@ -1,0 +1,130 @@
+(** {1 Pair sets}
+
+  This implements sets of pairs which can be both understood in terms of
+  hashtbls and in terms of sets. The function `get_element` allow querying a
+  `key` to get an `elt` but the rest of the implementation assumes that these
+  are sets.
+*)
+
+module Pair_set
+
+use int.Int
+use option.Option
+use export set.Fset
+
+type key
+type elt
+
+val eq_key (x y: key) : bool
+  ensures { result <-> x = y }
+
+val eq_elt (x y: elt) : bool
+  ensures { result <-> x = y }
+
+type t = { key: key; elt: elt}
+
+clone simple_hashtbl.H as Ha with
+  type key = key
+
+clone set.SetApp as Sa with
+  type elt = elt,
+  val eq = eq_elt
+
+type set = {
+  hash_set : Ha.t Sa.set;
+  mutable ghost to_fset : fset t }
+invariant Coherence {
+  forall e : t. (exists s: Sa.set.
+    hash_set.Ha.contents e.key = Some s /\ Sa.mem e.elt s) <-> mem e to_fset }
+by { hash_set = Ha.create 3; to_fset = empty }
+
+meta coercion function to_fset
+
+let mem (e : t) (h: set) : bool
+  ensures { result <-> mem e h } =
+  try
+    let s = Ha.defensive_find h.hash_set e.key in
+    Sa.mem e.elt s
+  with Ha.H.NotFound -> false
+  end
+
+let empty_set () : set
+  ensures { result = empty } =
+  { hash_set = Ha.create 16; to_fset = empty }
+
+let clear (s: set) : unit
+  ensures { s = empty }
+=
+  s.to_fset <- empty;
+  Ha.clear s.hash_set
+
+(* TODO
+val is_empty (s: set) : bool
+  ensures { result <-> is_empty s }
+*)
+
+let add (x: t) (s: set) : unit
+  requires { not (mem x s) }
+  ensures { s = add x (old s) }
+=
+  if Ha.mem s.hash_set x.key then
+    begin
+      assert If { Ha.([]) s.hash_set x.key <> None };
+      let hs = Ha.find s.hash_set x.key in
+      assert { not mem x.elt hs };
+      let new_s = Sa.add x.elt hs in
+      Ha.replace s.hash_set x.key new_s;
+      s.to_fset <- add x s.to_fset;
+    end
+  else
+    begin
+      assert If { Ha.([]) s.hash_set x.key = None };
+      assert Pre_add { Ha.([]) s.hash_set x.key = None };
+      Ha.add s.hash_set x.key (Sa.singleton x.elt);
+      s.to_fset <- add x s.to_fset
+    end
+
+let singleton (x: t) : set
+  ensures { result = singleton x }
+= let (s: set) = empty_set () in
+  add x s;
+  s
+
+let remove (x: t) (s: set) : unit
+  requires { mem x s }
+  ensures  { s = remove x (old s) }
+=
+  let sa = Ha.find s.hash_set x.key in
+  let new_s = Sa.remove x.elt sa in
+  s.to_fset <- remove x s.to_fset;
+  Ha.replace s.hash_set x.key new_s
+
+exception Not_found
+
+let get_element (k: key) (s: set) : (result: elt)
+  ensures { mem { key = k; elt = result } s }
+  raises  { Not_found -> forall e:elt. not mem {key = k; elt = e } s }
+=
+  let sa = try Ha.defensive_find s.hash_set k with
+           | Ha.H.NotFound -> raise Not_found
+           end
+  in
+  if Sa.is_empty sa then
+    raise Not_found
+  else
+    Sa.choose sa
+
+(* TODO
+  val function choose (s: set) : elt
+    requires { not (is_empty s) }
+    ensures  { mem result s }
+
+  val choose_and_remove (s: set) : elt
+    requires { not (is_empty s) }
+    writes   { s }
+    ensures  { result = choose (old s) }
+    ensures  { mem result (old s) }
+    ensures  { s = remove result (old s) }
+*)
+
+end

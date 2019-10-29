@@ -1,0 +1,119 @@
+(** {2 A Why3 implementation of the KeyServer} *)
+
+module Implem
+
+use option.Option
+use int.Int
+
+use spec.KeyServer as K
+use list.List as L
+
+(* Use our own library of associative sets (implemented as hashtbl set) *)
+clone pair_set.Pair_set as Ps with
+  type key = K.email,
+  type elt = K.key
+
+type concrete_state = {
+  database: Ps.set;
+  confirmAdd: K.Hcc.t K.(email, key);
+  confirmDel: K.Hcc.t K.(email, key);
+  ghost model_state: K.state;
+}
+invariant db_inv { forall e k.
+    K.S.mem (e, k) model_state.K.database <->
+    Ps.mem Ps.{ key = e; elt = k } database.Ps.to_fset }
+invariant add_inv { forall c. let l = confirmAdd.K.Hcc.contents c in
+                     K.Hcc.List.(match l with
+                     | Nil -> not K.S.mem c model_state.K.openAdds.K.P.dom
+                     | Cons x Nil -> K.S.mem c model_state.K.openAdds.K.P.dom /\
+                                     model_state.K.openAdds.K.P.assoc c = x
+                     | _ -> false
+                     end)}
+invariant del_inv { forall c. let l = confirmDel.K.Hcc.contents c in
+                     K.Hcc.List.(match l with
+                     | Nil -> not K.S.mem c model_state.K.openDels.K.P.dom
+                     | Cons x Nil -> K.S.mem c model_state.K.openDels.K.P.dom /\
+                                     model_state.K.openDels.K.P.assoc c = x
+                     | _ -> false
+                     end)}
+by { database = Ps.empty_set (); confirmAdd = K.Hcc.create 42;
+     confirmDel = K.Hcc.create 42; model_state = K.init () }
+
+let init () : concrete_state
+  ensures abs_state { result.model_state = K.init () }
+  =
+    { database = Ps.empty_set (); confirmAdd = K.Hcc.create 42;
+      confirmDel = K.Hcc.create 42; model_state = K.init () }
+
+let get (s: concrete_state) (e:K.email) : (result: K.key)
+  ensures { K.isExisting s.model_state e result  }
+  raises  { Ps.Not_found -> forall k. not K.isExisting s.model_state e k}
+=
+  Ps.get_element e s.database
+
+exception AlreadyInDb
+
+let add (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
+  ensures  { K.requestAddSpec (old s.model_state) s.model_state e k result }
+  raises   { AlreadyInDb -> K.S.mem (e,k) s.model_state.K.database }
+=
+  if Ps.mem Ps.{ key = e; elt = k } s.database then
+    raise AlreadyInDb
+  else
+    let c = K.fresh_confirmation_code_prog s.confirmAdd s.confirmDel in
+    s.model_state.K.openAdds <- K.P.update s.model_state.K.openAdds c (e, k);
+    K.Hcc.add s.confirmAdd c (e, k);
+    c
+
+let add_c (s: concrete_state) (c: K.confirmation_code) : bool
+  requires { true }
+  ensures { result = true <-> exists e k. K.confirmAddSpec_success (old s.model_state) s.model_state c e k }
+  ensures { result = false <-> not K.S.mem c (old s.model_state).K.openAdds.K.P.dom /\ (old s.model_state) = s.model_state }
+=
+  match K.Hcc.find_all s.confirmAdd c with
+  | L.Nil -> false
+  | L.Cons (e, k) L.Nil ->
+      s.model_state.K.database <- K.S.add (e, k) s.model_state.K.database;
+      s.model_state.K.openAdds <- K.P.remove s.model_state.K.openAdds c;
+      let t = Ps.{ key = e; elt = k } in
+      if not Ps.mem t s.database then
+        Ps.add t s.database;
+      K.Hcc.remove s.confirmAdd c;
+      true
+  | _ -> absurd
+  end
+
+exception NotInDb
+
+let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
+  requires { true }
+  ensures  { K.S.mem (e, k) s.model_state.K.database /\ K.requestdelSpec (old s.model_state) s.model_state e k result }
+  raises   { NotInDb -> not K.S.mem (e, k) s.model_state.K.database }
+=
+  let t = Ps.{ key = e; elt = k } in
+  if Ps.mem t s.database then
+    let c = K.fresh_confirmation_code_prog s.confirmAdd s.confirmDel in
+    s.model_state.K.openDels <- K.P.update s.model_state.K.openDels c (e, k);
+    K.Hcc.add s.confirmDel c (e, k);
+    c
+  else
+    raise NotInDb
+
+let del_c (s: concrete_state) (c: K.confirmation_code) : bool
+  requires { true } (* TODO TBD Requires valid c ? *)
+  ensures  { result = true  <-> exists e k. K.confirmDelSpec_success (old s.model_state) s.model_state c e k }
+  ensures  { result = false <-> not K.S.mem c (old s.model_state).K.openDels.K.P.dom /\ (old s.model_state) = s.model_state }
+= match K.Hcc.find_all s.confirmDel c with
+  | L.Nil -> false
+  | L.Cons (e, k) L.Nil ->
+      s.model_state.K.database <- K.S.remove (e, k) s.model_state.K.database;
+      s.model_state.K.openDels <- K.P.remove s.model_state.K.openDels c;
+      let t = Ps.{ key = e; elt = k } in
+      if Ps.mem t s.database then
+        Ps.remove t s.database;
+      K.Hcc.remove s.confirmDel c;
+      true
+  | _ -> absurd
+  end
+
+end

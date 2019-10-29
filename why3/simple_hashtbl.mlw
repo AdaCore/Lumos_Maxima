@@ -1,0 +1,84 @@
+(** {1 Hash tables}
+
+  This module provides Hash tables. It is built onto the module hashtbl.mlw
+  from the standard library. The difference is that at most one element can
+  correspond to each key.
+*)
+
+module H
+
+use int.Int
+use map.Map
+use list.ListRich
+use option.Option
+
+type key
+
+clone hashtbl.Hashtbl as H with
+  type key = key
+
+type t 'a = { htbl : H.t 'a;
+              ghost mutable contents: map key (option 'a) }
+invariant { forall k: key. length (htbl.H.contents k) <= 1 }
+invariant Coh { forall k: key.
+  match H.([]) htbl k, contents k with
+  | Nil, None -> true
+  | Cons v Nil, Some a -> a = v
+  | _ -> false
+  end }
+by { htbl = H.create 16; contents = (fun _ -> None) }
+
+function ([]) (h: t 'a) (k: key) : option 'a = h.contents k
+
+let create (n:int) : t 'a
+  ensures { forall k: key. result[k] = None } =
+  { htbl = H.create n; contents = (fun _ -> None) }
+
+let clear (h: t 'a) : unit
+  ensures { forall k: key. h[k] = None } =
+  h.contents <- (fun _ -> None);
+  H.clear h.htbl
+
+let add (h: t 'a) (k: key) (v: 'a) : unit
+  requires { h[k] = None }
+  ensures  { h[k] = Some v }
+  ensures  { forall k': key. k' <> k -> h[k'] = (old h)[k'] }
+=
+  h.contents <- Map.set h.contents k (Some v);
+  H.add h.htbl k v
+
+let mem (h: t 'a) (k: key) : bool
+  ensures { result = True <-> h[k] <> None }
+=
+  H.mem h.htbl k
+
+let find (h: t 'a) (k: key) : 'a
+  requires { h[k] <> None }
+  ensures  { match h[k] with None -> false | Some v -> result = v end }
+=
+  H.find h.htbl k
+
+let defensive_find (h: t 'a) (k: key) : 'a
+  ensures { match h[k] with None -> false | Some v -> result = v end }
+  raises  { H.NotFound -> h[k] = None }
+= H.defensive_find h.htbl k
+
+let copy (h: t 'a) : t 'a
+  ensures { forall k: key. result[k] = h[k] }
+= { htbl = H.copy h.htbl; contents = h.contents }
+
+let remove (h: t 'a) (k: key) : unit
+  ensures { h[k] = None  }
+  ensures { forall k': key. k' <> k -> h[k'] = (old h)[k'] }
+=
+  h.contents <- Map.set h.contents k None;
+  H.remove h.htbl k
+
+let replace (h: t 'a) (k: key) (v: 'a) : unit
+  ensures { h[k] = Some v }
+  ensures { forall k': key. k' <> k -> h[k'] = (old h)[k'] }
+=
+  h.contents <- Map.set h.contents k (Some v);
+  H.replace h.htbl k v
+
+end

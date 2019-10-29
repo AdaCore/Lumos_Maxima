@@ -1,7 +1,7 @@
 # Lumos Maxima
 This is the repository of the *Lumos Maxima* team participating to the [VerifyThis 2020 Collaborative Long-term Verification Challenge](https://verifythis.github.io/)
 
-## Contact
+## Contacts:
 [Yannick Moy](mailto:"<lastname>@adacore.com") and [Claude Marché](mailto:"<firstname>.<lastname>@inria.fr")
 
 ## Participants:

@@ -1,0 +1,32 @@
+(** {2 Partial maps in specifications}
+
+(Could be added in Why3 stdlib)
+*)
+
+module PartialMap
+
+use set.Fset as S
+
+type a (** type of map domain *)
+type b (** type of map range *)
+
+constant default: b (** an arbitrary inhabitant of the range *)
+
+type partial_map =
+{ dom: S.fset a; (** domain of the map *)
+  assoc: a -> b; (** the underlying total function *)
+}
+
+constant empty : partial_map
+  (** The map with empty domain *)
+  = { dom = S.empty; assoc = (fun _ -> default)}
+
+let ghost function update (p: partial_map) (x: a) (v: b) =
+  { dom = S.add x p.dom;
+    assoc = (fun x' -> if x' = x then v else p.assoc x') }
+
+let ghost function remove (p: partial_map) (x: a) =
+  { dom = S.remove x p.dom;
+    assoc = p.assoc }
+
+end

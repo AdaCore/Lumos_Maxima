@@ -1,0 +1,71 @@
+(** {2 Interface for the key server } *)
+
+module Req_notif
+
+  use implem.Implem as I
+
+  type request =
+  | Get  I.K.email
+  | Add  I.K.email I.K.key
+  | Addc I.K.confirmation_code
+  | Del  I.K.email I.K.key
+  | Delc I.K.confirmation_code
+
+  type notif =
+  | Got I.K.key
+  | Got_failure
+  | Add_ask I.K.confirmation_code
+  | Add_ask_failure
+  | Added bool
+  | Del_ask I.K.confirmation_code
+  | Del_failure
+  | Deleted bool
+
+end
+
+module IO
+
+  use Req_notif as R
+
+  val get_request : unit -> R.request
+  val notify: R.notif -> unit
+
+end
+
+module Real_implem
+  use implem.Implem as Implem
+  use Req_notif as R
+  use IO as IO
+
+  let treat_request (s: Implem.concrete_state) (req: R.request) : R.notif =
+    match req with
+    | R.Get e ->
+        try R.Got (Implem.get s e) with
+        | Implem.Ps.Not_found -> R.Got_failure
+        end
+    | R.Add e k ->
+        try R.Add_ask (Implem.add s e k) with
+        | Implem.AlreadyInDb -> R.Add_ask_failure
+        end
+    | R.Addc c ->
+        R.Added (Implem.add_c s c)
+    | R.Del e k ->
+        try (R.Del_ask (Implem.del s e k)) with
+        | Implem.NotInDb -> R.Del_failure
+        end
+    | R.Delc c ->
+        R.Deleted (Implem.del_c s c)
+    end
+
+  let main ()
+    diverges
+  =
+    let c = Implem.init() in
+    while true do
+       invariant { true }
+       let req = IO.get_request () in
+       let notif = treat_request c req in
+       IO.notify notif
+    done;
+
+end
