@@ -27,8 +27,8 @@ replay:
 	done
 
 extract:
-	why3 extract -L . --recursive -D driver/ocaml_ext.drv code/code.mlw -o extract/all.ml
-	dune build extract/code__Top.exe
+	why3 extract -L . --recursive -D ocaml64 -D driver/ocaml_ext.drv interface.mlw -o extract/all.ml
+	dune build extract/all.exe
 
 clean:
 	rm -f extract/all.ml

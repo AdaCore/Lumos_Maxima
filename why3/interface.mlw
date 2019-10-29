@@ -1,5 +1,6 @@
 (** {2 Interface for the key server } *)
 
+(*
 module Req_notif
 
   use implem.Implem as I
@@ -31,9 +32,11 @@ module IO
   val notify: R.notif -> unit
 
 end
+*)
 
 module Real_implem
   use implem.Implem as Implem
+(*
   use Req_notif as R
   use IO as IO
 
@@ -56,6 +59,9 @@ module Real_implem
     | R.Delc c ->
         R.Deleted (Implem.del_c s c)
     end
+*)
+
+  let init () = Implem.init ()
 
   let main ()
     diverges
@@ -63,9 +69,13 @@ module Real_implem
     let c = Implem.init() in
     while true do
        invariant { true }
+(*
        let req = IO.get_request () in
        let notif = treat_request c req in
        IO.notify notif
-    done;
+*)
+
+done;
+
 
 end
