@@ -6,8 +6,8 @@
 <file format="whyml">
 <path name=".."/><path name="interface.mlw"/>
 <theory name="Real_implem">
- <goal name="treat_request&#39;VC" expl="VC for treat_request">
- <proof prover="0" obsolete="true"><result status="valid" time="0.02" steps="8"/></proof>
+ <goal name="treat_request&#39;VC" expl="VC for treat_request" proved="true">
+ <proof prover="0"><result status="valid" time="0.02" steps="8"/></proof>
  </goal>
  <goal name="main&#39;VC" expl="VC for main">
  <proof prover="0" obsolete="true"><result status="failure" time="0.00"/></proof>
