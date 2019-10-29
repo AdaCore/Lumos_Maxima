@@ -10,7 +10,7 @@
  <proof prover="0"><result status="valid" time="0.02" steps="8"/></proof>
  </goal>
  <goal name="main&#39;VC" expl="VC for main">
- <proof prover="0" obsolete="true"><result status="failure" time="0.00"/></proof>
+ <proof prover="0"><result status="timeout" time="1.00"/></proof>
  </goal>
 </theory>
 </file>
