@@ -33,5 +33,6 @@ extract:
 clean:
 	rm -f extract/all.ml
 	rm -rf doc
+	rm -rf _build
 
 .PHONY: extract doc
