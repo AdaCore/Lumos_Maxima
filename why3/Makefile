@@ -20,9 +20,18 @@ doc/%session.html: %.mlw
 
 session: $(SOURCESESSION)
 
+replay:
+	@for i in $(SOURCE); do \
+		printf "== Replaying session '$$i'\n" ;  \
+		why3 replay -L . $$i; \
+	done
+
 extract:
-	mkdir -p extract
-	why3 extract -L . --recursive --modular -D driver/ocaml_ext.drv code/code.mlw -o extract
+	why3 extract -L . --recursive -D driver/ocaml_ext.drv code/code.mlw -o extract/all.ml
 	dune build extract/code__Top.exe
 
-.PHONY: extract session doc
+clean:
+	rm -f extract/all.ml
+	rm -rf doc
+
+.PHONY: extract doc
