@@ -22,21 +22,10 @@ module Req_notif
   | Deleted bool
 
 end
-(*
-module IO
-
-  use Req_notif as R
-
-  val get_request : unit -> R.request
-  val notify: R.notif -> unit
-
-end
-*)
 
 module Real_implem
   use implem.Implem as Implem
   use Req_notif as R
-(*  use IO as IO*)
 
   let init () : Implem.concrete_state = Implem.init ()
 
@@ -59,16 +48,5 @@ module Real_implem
     | R.Delc c ->
         R.Deleted (Implem.del_c s c)
     end
-
-(*  let main ()
-    diverges
-  =
-    while true do
-       invariant { true }
-       let req = IO.get_request () in
-       let notif = treat_request c req in
-       IO.notify notif
-done;
-*)
 
 end
