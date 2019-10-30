@@ -63,8 +63,7 @@ let add (s: concrete_state) (e: string) (k: int) : int =
   then raise AlreadyInDb
   else
     begin
-      let c =
-        ((fun _ _ -> Confirm_code_gen.gen ()) (s.confirmAdd) (s.confirmDel)) in
+      let c = ((fun _ _ -> gen ()) (s.confirmAdd) (s.confirmDel)) in
       Hashtbl.add (s.confirmAdd) c ((e, k)); c end
 
 let mem1 : type a. (a t) -> (string) ->  (bool) = fun h k -> Hashtbl.mem h k
@@ -101,8 +100,7 @@ let del (s: concrete_state) (e: string) (k: int) : int =
   let t2 = { key = e; elt = k } in
   if mem t2 (s.database)
   then
-    let c =
-      ((fun _ _ -> Confirm_code_gen.gen ()) (s.confirmAdd) (s.confirmDel)) in
+    let c = ((fun _ _ -> gen ()) (s.confirmAdd) (s.confirmDel)) in
     Hashtbl.add (s.confirmDel) c ((e, k)); c
   else raise NotInDb
 

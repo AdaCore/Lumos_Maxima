@@ -43,8 +43,8 @@ module implem.Implem
   syntax val Ps.Sa.disjoint "Set.disjoint %1 %2"
   syntax val Ps.Sa.cardinal "Set.cardinal %1"
 
-  syntax val K.fresh_confirmation_code "((fun _ -> Confirm_code_gen.gen ()) %1)"
-  syntax val K.fresh_confirmation_code_prog "((fun _ _ -> Confirm_code_gen.gen ()) %1 %2)"
+  syntax val K.fresh_confirmation_code "((fun _ -> gen ()) %1)"
+  syntax val K.fresh_confirmation_code_prog "((fun _ _ -> gen ()) %1 %2)"
 
   syntax type K.Hcc.t "(int, (string * int)) Hashtbl.t"
   syntax exception K.Hcc.NotFound "Not_found"
