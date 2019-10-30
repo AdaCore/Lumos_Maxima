@@ -1,12 +1,63 @@
 
 (** OCaml driver for 64-bit architecture *)
 
-
 (* TODO unchecked correctness: checked only necessity in the code *)
 module implem.Implem
 
-  syntax val K.Hcc.create "Hashtbl.create %1"
+(* TODO we translate:
+   - key to int
+   - email to string
+   - confirmation_code to int *)
+
+   syntax type K.email "string"
+   syntax type K.key "int"
+   syntax type K.confirmation_code "int"
+
+(* TODO type 'a t = (string, 'a) Hashtbl.t *)
+
+  syntax type Ps.Ha.H.t "(string, 'a) Hashtbl.t"
+  syntax exception Ps.Ha.H.NotFound "Not_found" (* TODO these exceptions handling style would not work if there was a function that raised two different exceptions....... *)
+  syntax exception Ps.Not_found "Not_found"
+  syntax val Ps.Ha.H.create "Hashtbl.create (Z.to_int %1)"
+  syntax val Ps.Ha.H.clear "Hashtbl.clear %1"
+  syntax val Ps.Ha.H.add "Hashtbl.add %1 %2 %3"
+  syntax val Ps.Ha.H.mem "Hashtbl.mem %1 %2"
+  syntax val Ps.Ha.H.find "Hashtbl.find %1 %2"
+  syntax val Ps.Ha.H.find_all "Hashtbl.find_all %1 %2"
+  syntax val Ps.Ha.H.defensive_find "defensive_find %1 %2"
+  syntax val Ps.Ha.H.copy "Hashtbl.copy %1"
+  syntax val Ps.Ha.H.remove "Hashtbl.remove %1 %2"
+  syntax val Ps.Ha.H.replace "Hashtbl.replace %1 %2 %3"
+
+  syntax type Ps.Sa.set "Set.t"
+  syntax val Ps.Sa.mem "Set.mem %1 %2"
+  syntax val Ps.Sa.(==) "Set.equal %1 %2"
+  syntax val Ps.Sa.subset "Set.subset %1 %2"
+  syntax val Ps.Sa.empty "(fun _ -> Set.empty) %1"
+  syntax val Ps.Sa.is_empty "Set.is_empty %1"
+  syntax val Ps.Sa.singleton "Set.singleton %1"
+  syntax val Ps.Sa.add "Set.add %1 %2"
+  syntax val Ps.Sa.remove "Set.remove %1 %2"
+  syntax val Ps.Sa.union "Set.union %1 %2"
+  syntax val Ps.Sa.inter "Set.inter %1 %2"
+  syntax val Ps.Sa.diff "Set.diff %1 %2"
+  syntax val Ps.Sa.choose "Set.choose %1"
+  syntax val Ps.Sa.disjoint "Set.disjoint %1 %2"
+  syntax val Ps.Sa.cardinal "Set.cardinal %1"
+
+(*  syntax val K.compare "TODO"*)
+  syntax val K.fresh_confirmation_code "((fun _ -> Confirm_code_gen.gen ()) %1)"
+  syntax val K.fresh_confirmation_code_prog "((fun _ _ -> Confirm_code_gen.gen ()) %1 %2)"
+
+  syntax type K.Hcc.t "(int, (string * int)) Hashtbl.t"
+  syntax exception K.Hcc.NotFound "Not_found"
+  syntax val K.Hcc.create "Hashtbl.create (Z.to_int %1)"
+  syntax val K.Hcc.add "Hashtbl.add %1 %2 %3"
+  syntax val K.Hcc.find_all "Hashtbl.find_all %1 %2"
+  syntax val K.Hcc.remove "Hashtbl.remove %1 %2"
+
 (*
+  syntax val Ps.Ha.create "Hashtbl.create %1"
   syntax val K.Hcc.clear "Hashtbl.clear %1"
   syntax val K.Hcc.add "Hashtbl.add %1 %2 %3"
   syntax val K.Hcc.mem "Hashtbl.mem %1 %2"
@@ -17,24 +68,12 @@ module implem.Implem
   syntax val K.Hcc.remove "Hashtbl.remove %1 %2"
   syntax val K.Hcc.replace "Hashtbl.replace %1 %2 %3"
 
-
-  syntax val K.compare "TODO"
-  syntax val K.fresh_confirmation_code "((fun _ -> Confirm_code_gen.gen ()) %1)"
-  syntax val K.fresh_confirmation_code_prog "((fun _ _ -> Confirm_code_gen.gen ()) %1 %2)"
 *)
-  syntax val Ps.eq_key "TODO"
+
+(*  syntax val Ps.eq_key "TODO"
   syntax val Ps.eq_elt "TODO"
-
-  prelude "module OrdP =
-struct
-  type t = Spec__Data.key
-  let compare (a: t) (b: t) : int =
-    Pervasives.compare a b
-
-end
-
-module Set = Set.Make (OrdP)
-"
+*)
+  prelude "open Prelude"
 
 (*
   syntax type Ps.Sa.set "Set.t"
@@ -53,17 +92,7 @@ module Set = Set.Make (OrdP)
   syntax val Ps.Sa.disjoint "Set.disjoint %1 %2"
   syntax val Ps.Sa.cardinal "Set.cardinal %1"
 
-  syntax type Ps.Ha.H.t "TODO"
-  syntax val Ps.Ha.H.create "Hashtbl.create %1"
-  syntax val Ps.Ha.H.clear "Hashtbl.clear %1"
-  syntax val Ps.Ha.H.add "Hashtbl.add %1 %2 %3"
-  syntax val Ps.Ha.H.mem "Hashtbl.mem %1 %2"
-  syntax val Ps.Ha.H.find "Hashtbl.find %1 %2"
-  syntax val Ps.Ha.H.find_all "Hashtbl.find_all %1 %2"
-  syntax val Ps.Ha.H.defensive_find "Hashtbl.defensive_find %1 %2"
-  syntax val Ps.Ha.H.copy "Hashtbl.copy %1"
-  syntax val Ps.Ha.H.remove "Hashtbl.remove %1 %2"
-  syntax val Ps.Ha.H.replace "Hashtbl.replace %1 %2 %3"
+
 *)
 
 end

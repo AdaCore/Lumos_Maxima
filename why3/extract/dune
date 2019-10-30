@@ -1,3 +1,3 @@
 (executable
- (name all)
+ (name test)
  (libraries zarith))
