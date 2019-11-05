@@ -33,6 +33,9 @@ extract:
 test: extract
 	dune exec extract/test.exe
 
+interactive: extract
+	dune exec extract/int_serv.exe
+
 clean:
 	rm -f extract/all.ml
 	rm -rf doc
