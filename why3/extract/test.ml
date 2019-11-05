@@ -17,8 +17,10 @@ let () = test [Get "sylvain.dailler";
                Addc 25; (* This fails *)
                Addc 2; (* This is successful *)
                Get "lumos_maxima@gmail.com"; (* Return 101 *)
+               Addc 2; (* This fails *)
                Del ("lumos_maxima@gmail.com", 42); (* Fail *)
                Del ("lumos_maxima@gmail.com", 101);
                Delc 42; (* Fail *)
                Delc 3; (* Success *)
+               Delc 3; (* Fail *)
               ]
