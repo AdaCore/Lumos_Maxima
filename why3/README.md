@@ -35,3 +35,11 @@
 * make extract
 
   performs extraction to OCaml (WIP, not working yet)
+
+* make test
+
+  Executes the test
+
+* make interactive
+
+  Starts the interactive server: communication can be done on stdin/stdout
