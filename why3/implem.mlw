@@ -18,10 +18,11 @@ clone pair_set.Pair_set as Ps with
 The concrete state is the current state of the server. It holds the program
 variables holding the database of email/key and the confirmation code already
 provided. The invariant ensures the correspondance between the concrete state
-and its ghost model model_state (defined in spec.mlw).
+and its ghost model `model_state` (defined in spec.mlw).
 
-So, high-level constraints are to be found in the model: type state of spec.mlw.
-This definition only ensures that it correctly implement the model.
+So, high-level constraints are to be found in the model: type `state` of
+`spec.mlw`.
+This definition only ensures that it is a correct implementation of the model.
 *)
 
 type concrete_state = {
@@ -52,7 +53,7 @@ by { database = Ps.empty_set (); confirmAdd = K.Hcc.create 42;
 
 (** {3 Initialisation }
 
-Returns a concrete_state with empty databases.
+Returns a `concrete_state` with empty databases.
 
 *)
 
@@ -65,7 +66,7 @@ let init () : concrete_state
 (** {3 Get }
 
 Returns the key in the database corresponding to the given email. Raises
-Ps.Not_found if the email has no associated key.
+`Ps.Not_found` if the email has no associated key.
 
 *)
 
@@ -80,8 +81,8 @@ exception AlreadyInDb
 (** {3 Add }
 
 Ask for addition of a (key, email) pair ot the state. Returns a
-confirmation_code.
-If the (key, email) pair is already in, raises AlreadyInDb.
+`confirmation_code`.
+If the (key, email) pair is already in, raises `AlreadyInDb`.
 
 *)
 
@@ -126,8 +127,8 @@ exception NotInDb
 
 (** {3 Delete }
 
-Ask for deletion of a (key, email) pair. This returns a confirmation_code.
-If the (key, pair) does not exist, it raises NotInDb
+Ask for deletion of a (key, email) pair. This returns a `confirmation_code`.
+If the (key, pair) does not exist, it raises `NotInDb`.
 
 *)
 
@@ -147,9 +148,9 @@ let del (s: concrete_state) (e: K.email) (k: K.key) : K.confirmation_code
 
 (** {3 Delete confirmation }
 
-Confirms deleting a (key,email) pair. This actually delete the (key, email) pair
-from the database. The result is true iff the confirmation is successful (ie:
-deletion in the database is done).
+Confirms deleting a (key,email) pair. This actually deletes the (key, email)
+pair from the database. The result is true iff the confirmation is successful
+(ie: deletion in the database is done).
 
 *)
 
