@@ -1,6 +1,17 @@
 
 ## An experimental version of a KeyServer developed in Why3
 
+### Specification details:
+
+* The 5 operations described have been implemented.
+* Choices remain to be done with regards to the definition of the invariant
+  that the global state of the server should preserve.
+* The confirmation code generation is just a global incrementing function
+  returning an int.
+* The implementation of the database is not persistent (hashtable stored in
+  memory).
+
+### Files:
 
 `spec.mlw`: the specifications
 
@@ -13,6 +24,8 @@
 `simple_hashtbl.mlw`: Hashtbl with only one value for each key
 
 `interface.mlw`: WIP, experimental, for extraction
+
+### Usage:
 
 * make doc
 
@@ -35,3 +48,11 @@
 * make extract
 
   performs extraction to OCaml (WIP, not working yet)
+
+* make test
+
+  Executes the test
+
+* make interactive
+
+  Starts the interactive server: communication can be done on stdin/stdout

@@ -1,32 +1,26 @@
+open Lib_test
 open All
-open Format
 
-(* TODO cannot use deriving on generated ml file *)
-let print_notif fmt notif =
-  match notif with
-  | Got n           -> fprintf fmt "Found key: %d@." n
-  | Got_failure     -> fprintf fmt "Get error: cannot find key@."
-  | Add_ask n       -> fprintf fmt "Add request for key: %d@." n
-  | Add_ask_failure -> fprintf fmt "Failure of add key@."
-  | Added true      -> fprintf fmt "Key successfully added@."
-  | Added false     -> fprintf fmt "Error: key was not added@."
-  | Del_ask n       -> fprintf fmt "Del request for key: %d@." n
-  | Del_failure     -> fprintf fmt "Failure of del key@."
-  | Deleted true    -> fprintf fmt "Key successfully deleted@."
-  | Deleted false   -> fprintf fmt "Error: key was not deleted@."
-
-let test () =
+(* This prints the output on the stdout *)
+let test req_list =
   let state = init () in
-  let n = treat_request state (Get "sylvain.dailler") in
-  Format.printf "%a@." print_notif n;
-  let n1 = treat_request state (Add ("sylvain.dailler", 42)) in
-  Format.printf "%a@." print_notif n1;
-  match n1 with
-  | Add_ask n ->
-    let n2 = treat_request state (Addc n) in
-    Format.printf "%a@." print_notif n2;
-    let n3 = treat_request state (Get "sylvain.dailler") in
-    Format.printf "%a@." print_notif n3;
-  | _ -> exit 1
+  List.iter (fun req ->
+      let n = treat_request state req in
+      Format.printf "%a@." print_notif n)
+    req_list
 
-let () = test ()
+let () = test [Get "sylvain.dailler";
+               Add ("sylvain.dailler", 42);
+               Addc 1;
+               Get "sylvain.dailler";
+               Add ("lumos_maxima@gmail.com", 101);
+               Addc 25; (* This fails *)
+               Addc 2; (* This is successful *)
+               Get "lumos_maxima@gmail.com"; (* Return 101 *)
+               Addc 2; (* This fails *)
+               Del ("lumos_maxima@gmail.com", 42); (* Fail *)
+               Del ("lumos_maxima@gmail.com", 101);
+               Delc 42; (* Fail *)
+               Delc 3; (* Success *)
+               Delc 3; (* Fail *)
+              ]
