@@ -1,4 +1,3 @@
-with Database; use Database;
 package body Server with SPARK_Mode is
 
    -----------------
@@ -19,15 +18,15 @@ package body Server with SPARK_Mode is
    ----------------
 
    procedure Verify_Add
-     (Token : Token_Type;
+     (Token  : Token_Type;
       Status : out Boolean)
    is
+      Email : Email_Address_Type;
+      Key   : Key_Type;
    begin
-      if Valid_Add (Token) then
-         Add_To_Database (Get_Add_Email (Token), Get_Add_Key (Token));
-         Status := True;
-      else
-         Status := False;
+      Get_Add_Info (Token, Status, Email, Key);
+      if Status and then not Contains (Email, Key) then
+         Add_To_Database (Email, Key);
       end if;
    end Verify_Add;
 
@@ -65,23 +64,15 @@ package body Server with SPARK_Mode is
    -------------------
 
    procedure Verify_Remove
-     (Token : Token_Type;
+     (Token  : Token_Type;
       Status : out Boolean)
    is
+      Email : Email_Address_Type;
+      Key   : Key_Type;
    begin
-      if Valid_Remove (Token) then
-         declare
-            Email : constant Email_Address_Type := Get_Remove_Email (Token);
-            Key   : constant Key_Type := Get_Remove_Key (Token);
-         begin
-            if Contains (Email, Key) then
-               Remove_From_Database (Email, Key);
-            end if;
-
-            Status := True;
-         end;
-      else
-         Status := False;
+      Get_Remove_Info (Token, Status, Email, Key);
+      if Status and then Contains (Email, Key) then
+         Remove_From_Database (Email, Key);
       end if;
    end Verify_Remove;
 
