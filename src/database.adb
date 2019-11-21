@@ -101,6 +101,7 @@ is
    begin
       Delete (Database, Pos);
       DB_Model := Remove (DB_Model, (Key, Email));
+      pragma Assert (for all Pair of DB_Model => Contains (Database, Pair));
    end Remove_From_Database;
 
 end Database;
