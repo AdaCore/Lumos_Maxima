@@ -13,12 +13,16 @@ package Email with SPARK_Mode is
 
    No_Email : constant Email_Address_Type := 0;
 
+   function Invariant return Boolean;
+
    procedure To_Email_Address (S : String;
                                Email : out Email_Address_Type)
-     with Pre => S'Length <= 256;
+     with Pre => S'Length <= 256 and then Invariant,
+          Post => Invariant;
       --  returns No_Email if email address integer could not be created
 
    function To_String (E : Valid_Email_Address_Type) return String
-   with Post => To_String'Result'Length <= 256;
+     with Pre => Invariant,
+          Post => To_String'Result'Length <= 256;
 
 end Email;

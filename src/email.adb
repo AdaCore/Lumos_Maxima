@@ -21,20 +21,28 @@ package body Email with SPARK_Mode is
    -- Is_Valid --
    --------------
 
-   function Is_Valid (X : Valid_Email_Address_Type) return Boolean is
-      (X <= Int_To_String.Last_Index (Data));
+   function Invariant return Boolean is
+     (for all I1 in 1 .. Int_To_String.Last_Index (Data) =>
+          (for all I2 in 1 .. Int_To_String.Last_Index (Data) =>
+             (if I1 /= I2 then
+                     Int_To_String.Element (Data, I1) /=
+                  Int_To_String.Element (Data, I2))));
 
    ----------------------
    -- To_Email_Address --
    ----------------------
 
    procedure To_Email_Address (S : String;
-                               Email : out Email_Address_Type) is
+                               Email : out Email_Address_Type)
+   is
       use Ada.Containers;
       use Int_To_String;
       Copy : constant String (1 .. S'Length) := S;
    begin
       for Index in 1 .. Last_Index (Data) loop
+         pragma Loop_Invariant
+           (for all K in 1 .. Index - 1 =>
+              Element (Data, K).Ct /= Email_Address_Buffer_Type (Copy));
          if Element (Data, Index).Ct = Email_Address_Buffer_Type (Copy) then
             Email := Index;
             return;
@@ -56,7 +64,9 @@ package body Email with SPARK_Mode is
    function To_String (E : Valid_Email_Address_Type) return String is
       use Ada.Containers;
    begin
-      pragma Assume (E <= Int_To_String.Last_Index (Data));
+      pragma Assume (E <= Int_To_String.Last_Index (Data),
+                     "only valid indices are created by this package " &
+                       "and the user doesn't play with the indices");
       return String (Int_To_String.Element (Data, E).Ct);
    end To_String;
 
