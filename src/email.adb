@@ -31,13 +31,19 @@ package body Email with SPARK_Mode is
    procedure To_Email_Address (S : String;
                                Email : out Email_Address_Type) is
       use Ada.Containers;
+      use Int_To_String;
       Copy : constant String (1 .. S'Length) := S;
    begin
-      -- ??? would like to guarantee unicity
-      if Int_To_String.Length (Data) < Max_Num_Emails then
-         Int_To_String.Append (Data, (Len => S'Length,
-                                      Ct => Email_Address_Buffer_Type (Copy)));
-         Email := Int_To_String.Last_Index (Data);
+      for Index in 1 .. Last_Index (Data) loop
+         if Element (Data, Index).Ct = Email_Address_Buffer_Type (Copy) then
+            Email := Index;
+            return;
+         end if;
+      end loop;
+      if Length (Data) < Max_Num_Emails then
+         Append (Data, (Len => S'Length,
+                        Ct => Email_Address_Buffer_Type (Copy)));
+         Email := Last_Index (Data);
       else
          Email := No_Email;
       end if;
