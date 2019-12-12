@@ -1,5 +1,10 @@
+with "aws";
+
 project Lumos is
 
    for Source_Dirs use ("src");
    for Object_Dir use "obj";
+
+   for Main use ("web_server.adb");
+
 end Lumos;
