@@ -135,6 +135,9 @@ is
      and Key = Get_Key (Seen_Tokens, Token)
      and Seen_Tokens'Old <= Seen_Tokens;
 
+   function To_String (T : Token_Type) return String;
+   function From_String (T : String) return Token_Type;
+
 private
 
    type Token_Type is mod 2 ** 32;
@@ -179,5 +182,11 @@ private
 
    function Is_Add (Set : Token_Set; Token : Token_Type) return Boolean is
      (Get (Set.Tokens, Token).Is_Add);
+
+   function To_String (T : Token_Type) return String is
+     (Token_Type'Image (T));
+
+   function From_String (T : String) return Token_Type is
+      (Token_Type'Value (T));
 
 end Tokens;

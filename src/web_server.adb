@@ -1,7 +1,10 @@
+with Ada.Text_IO;
 with AWS.Config;
+with AWS.Config.Set;
 with AWS.Server;
 with AWS.Services.Dispatchers.URI;
 with VKS;
+with User_Interface;
 
 procedure Web_Server is
    H    : AWS.Services.Dispatchers.URI.Handler;
@@ -9,6 +12,7 @@ procedure Web_Server is
 
    use AWS.Services;
 
+   Config : AWS.Config.Object := AWS.Config.Get_Current;
 begin
    --  as documented in https://keys.openpgp.org/about/api
 
@@ -18,7 +22,16 @@ begin
    Dispatchers.URI.Register (H, "/vks/v1/upload", VKS.Upload'Access);
    Dispatchers.URI.Register (H, "/vks/v1/request-verify", VKS.Request_Verify'Access);
 
-   AWS.Server.Start (WS, Dispatcher => H, Config => AWS.Config.Get_Current);
-   delay 60.0;
-   AWS.Server.Shutdown (WS);
+   --  entry points for end users
+   Dispatchers.URI.Register (H, "/user_add", User_Interface.User_Add'Access);
+
+   AWS.Config.Set.Reuse_Address (Config, True);
+
+   AWS.Server.Start (WS, Dispatcher => H, Config => Config);
+   Ada.Text_IO.Put_Line ("Now, please connect to");
+   Ada.Text_IO.New_Line;
+   Ada.Text_IO.Put_Line ("  http://localhost:8080/user_add");
+   Ada.Text_IO.New_Line;
+   Ada.Text_IO.Put_Line ("Type q to stop the server.");
+   AWS.Server.Wait (Mode => AWS.Server.Q_Key_Pressed);
 end Web_Server;
