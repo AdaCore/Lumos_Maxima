@@ -1,3 +1,5 @@
+with Ada.Containers.Functional_Sets;
+
 package Email with SPARK_Mode is
 
    --  emails are at most 256 characters long, see
@@ -13,16 +15,46 @@ package Email with SPARK_Mode is
 
    No_Email : constant Email_Address_Type := 0;
 
-   function Invariant return Boolean;
+   type Number_Set is private with Ghost;
+
+   function Seen_Numbers return Number_Set with
+     Ghost;
+
+   function "<=" (Left, Right : Number_Set) return Boolean with Ghost;
+
+   function Contains (Set : Number_Set; Email : Valid_Email_Address_Type)
+                      return Boolean with Ghost;
+
+   function Invariant return Boolean with Ghost;
 
    procedure To_Email_Address (S : String;
                                Email : out Email_Address_Type)
      with Pre => S'Length <= 256 and then Invariant,
-          Post => Invariant;
+     Post =>
+       (Invariant and
+          (if Email /= No_Email then Contains (Seen_Numbers, Email)) and
+            Seen_Numbers'Old <= Seen_Numbers);
       --  returns No_Email if email address integer could not be created
 
    function To_String (E : Valid_Email_Address_Type) return String
-     with Pre => Invariant,
+     with Pre => Contains (Seen_Numbers, E) and then Invariant,
           Post => To_String'Result'Length <= 256;
+
+private
+
+   package Number_Sets is new Ada.Containers.Functional_Sets
+     (Valid_Email_Address_Type);
+
+   use Number_Sets;
+
+   type Number_Set is record
+      Numbers : Number_Sets.Set;
+   end record;
+
+   function "<=" (Left, Right : Number_Set) return Boolean is
+     (Left.Numbers <= Right.Numbers);
+
+   function Contains (Set : Number_Set; Email : Valid_Email_Address_Type)
+     return Boolean is (Contains (Set.Numbers, Email));
 
 end Email;

@@ -1,4 +1,5 @@
 with Ada.Containers.Formal_Vectors;
+use type Ada.Containers.Count_Type;
 
 package body Email with SPARK_Mode is
 
@@ -9,6 +10,8 @@ package body Email with SPARK_Mode is
    type Email_Address_Var_Type (Len : Length_Type := 20) is record
       Ct : Email_Address_Buffer_Type (1 .. Len);
    end record;
+
+   Email_Model : Number_Set with Ghost;
 
    package Int_To_String is new
      Ada.Containers.Formal_Vectors
@@ -22,11 +25,19 @@ package body Email with SPARK_Mode is
    --------------
 
    function Invariant return Boolean is
-     (for all I1 in 1 .. Int_To_String.Last_Index (Data) =>
+     ((for all I1 in 1 .. Int_To_String.Last_Index (Data) =>
           (for all I2 in 1 .. Int_To_String.Last_Index (Data) =>
              (if I1 /= I2 then
                      Int_To_String.Element (Data, I1) /=
-                  Int_To_String.Element (Data, I2))));
+                    Int_To_String.Element (Data, I2))))
+      and then Length (Email_Model.Numbers) =
+          Ada.Containers.Count_Type (Int_To_String.Last_Index (Data))
+      and then
+        (for all I in 1 .. Int_To_String.Last_Index (Data) =>
+              Contains (Email_Model, I))
+      and then
+        (for all I of Email_Model.Numbers =>
+              I <= Int_To_String.Last_Index (Data)));
 
    ----------------------
    -- To_Email_Address --
@@ -52,6 +63,9 @@ package body Email with SPARK_Mode is
          Append (Data, (Len => S'Length,
                         Ct => Email_Address_Buffer_Type (Copy)));
          Email := Last_Index (Data);
+         Email_Model.Numbers := Add (Email_Model.Numbers, Email);
+         pragma Assert ((for all I in 1 .. Int_To_String.Last_Index (Data) =>
+                               Contains (Email_Model, I)));
       else
          Email := No_Email;
       end if;
@@ -62,12 +76,10 @@ package body Email with SPARK_Mode is
    ---------------
 
    function To_String (E : Valid_Email_Address_Type) return String is
-      use Ada.Containers;
    begin
-      pragma Assume (E <= Int_To_String.Last_Index (Data),
-                     "only valid indices are created by this package " &
-                       "and the user doesn't play with the indices");
       return String (Int_To_String.Element (Data, E).Ct);
    end To_String;
+
+   function Seen_Numbers return Number_Set is (Email_Model);
 
 end Email;
