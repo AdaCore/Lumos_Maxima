@@ -32,13 +32,23 @@ package body VKS is
    end By_Keyid;
 
    function By_Email (Request : Status.Data) return Response.Data is
-   begin
-      if Status.Method (Request) /= Status.GET then
-         raise Constraint_Error;
-      end if;
+      use Email;
+      use Keys;
 
+      P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
+      E : Email_Address_Type;
+      K : Key_Type;
+   begin
+      To_Email_Address (AWS.Parameters.Get (P, "email"), E);
+      if E /= No_Email then
+         K := Server.Query_Email (E);
+         if K /= No_Key then
+            return Response.Build
+              (MIME.Text_HTML, "<p> The key is " & To_String (K) & "</p>");
+         end if;
+      end if;
       return Response.Build
-        (MIME.Text_HTML, "<p>WIP on GET by-email</p>");
+        (MIME.Text_HTML, "<p> Key not found</p>");
    end By_Email;
 
    function Upload (Request : Status.Data) return Response.Data is
@@ -66,13 +76,19 @@ package body VKS is
    end Upload;
 
    function Request_Verify (Request : Status.Data) return Response.Data is
+      P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
+      Token : constant Tokens.Token_Type :=
+        Tokens.From_String (AWS.Parameters.Get (P, "token"));
+      Status : Boolean;
    begin
-      if Status.Method (Request) /= Status.POST then
-         raise Constraint_Error;
+      Server.Verify_Add (Token, Status);
+      if Status then
+         return Response.Build
+           (MIME.Text_HTML, "<p>Successfully added key</p>");
+      else
+         return Response.Build
+           (MIME.Text_HTML, "<p>Error when adding the key</p>");
       end if;
-
-      return Response.Build
-        (MIME.Text_HTML, "<p>WIP on POST request-verify</p>");
    end Request_Verify;
 
 end VKS;

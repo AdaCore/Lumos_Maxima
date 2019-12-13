@@ -24,13 +24,15 @@ begin
 
    --  entry points for end users
    Dispatchers.URI.Register (H, "/user_add", User_Interface.User_Add'Access);
+   Dispatchers.URI.Register (H, "/", User_Interface.Index'Access);
+   Dispatchers.URI.Register (H, "/query", User_Interface.Query'Access);
 
    AWS.Config.Set.Reuse_Address (Config, True);
 
    AWS.Server.Start (WS, Dispatcher => H, Config => Config);
    Ada.Text_IO.Put_Line ("Now, please connect to");
    Ada.Text_IO.New_Line;
-   Ada.Text_IO.Put_Line ("  http://localhost:8080/user_add");
+   Ada.Text_IO.Put_Line ("  http://localhost:8080/");
    Ada.Text_IO.New_Line;
    Ada.Text_IO.Put_Line ("Type q to stop the server.");
    AWS.Server.Wait (Mode => AWS.Server.Q_Key_Pressed);
