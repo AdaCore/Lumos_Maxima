@@ -68,7 +68,7 @@ is
       Key   : out Key_Type)
    is
       use Request_Maps;
-      C : Cursor := Find (Pending_Add_Map, Token);
+      C : constant Cursor := Find (Pending_Add_Map, Token);
    begin
       if C /= No_Element then
          declare
@@ -96,7 +96,7 @@ is
       Key   : out Key_Type)
    is
       use Request_Maps;
-      C : Cursor := Find (Pending_Remove_Map, Token);
+      C : constant Cursor := Find (Pending_Remove_Map, Token);
    begin
       if C /= No_Element then
          declare

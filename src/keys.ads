@@ -1,6 +1,7 @@
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 package Keys is
 
-   type Key_Type is private;
+   subtype Key_Type is Unbounded_String;
 
    No_Key : constant Key_Type;
    
@@ -8,13 +9,11 @@ package Keys is
    function To_String (S : Key_Type) return String;
 private
 
-   type Key_Type is new Integer; -- ???
-
-   No_Key : constant Key_Type := 0;
+   No_Key : constant Key_Type := Null_Unbounded_String;
    
    function From_String (S : String) return Key_Type is
-      (Key_Type'Value (S));
+      (To_Unbounded_String (S));
    
    function To_String (S : Key_Type) return String is
-      (Key_Type'Image (S));
+      (Ada.Strings.Unbounded.To_String (S));
 end Keys;

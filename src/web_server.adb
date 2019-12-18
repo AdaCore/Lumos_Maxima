@@ -2,15 +2,10 @@ with Ada.Text_IO;
 with AWS.Config;
 with AWS.Config.Set;
 with AWS.Server;
-with AWS.Services.Dispatchers.URI;
-with VKS;
 with User_Interface;
 
 procedure Web_Server is
-   H    : AWS.Services.Dispatchers.URI.Handler;
    WS   : AWS.Server.HTTP;
-
-   use AWS.Services;
 
    Config : AWS.Config.Object := AWS.Config.Get_Current;
 begin

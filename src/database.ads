@@ -1,3 +1,5 @@
+with Ada.Strings.Unbounded;
+use type Ada.Strings.Unbounded.Unbounded_String;
 with Email; use Email;
 with Keys;  use Keys;
 with Ada.Containers.Functional_Sets;

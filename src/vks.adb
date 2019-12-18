@@ -1,6 +1,12 @@
+with Ada.Containers.Indefinite_Doubly_Linked_Lists;
+with Ada.Strings.Unbounded;
+use type Ada.Strings.Unbounded.Unbounded_String;
+with Ada.Text_IO;
 with AWS.MIME;
 with AWS.Parameters;
 with AWS.Status;
+with AWS.Translator;
+with GNAT.Regpat;
 
 with Email;
 with Keys;
@@ -11,7 +17,19 @@ use type AWS.Status.Request_Method;
 
 package body VKS is
 
+   package String_Lists is new
+     Ada.Containers.Indefinite_Doubly_Linked_Lists (String);
+
    function Build_HTML_Answer (S : String) return Response.Data;
+
+   function Extract_Email (Key : String) return String_Lists.List;
+
+   Re : constant GNAT.Regpat.Pattern_Matcher :=
+     GNAT.Regpat.Compile ("<[[:print:]]+?>");
+
+   -----------------------
+   -- Build_HTML_Answer --
+   -----------------------
 
    function Build_HTML_Answer (S : String) return Response.Data is
    begin
@@ -31,6 +49,10 @@ package body VKS is
            "</html>");
    end Build_HTML_Answer;
 
+   --------------------
+   -- By_Fingerprint --
+   --------------------
+
    function By_Fingerprint (Request : Status.Data) return Response.Data is
    begin
       if Status.Method (Request) /= Status.GET then
@@ -41,6 +63,10 @@ package body VKS is
         (MIME.Text_HTML, "<p>WIP on GET by-fingerprint</p>");
    end By_Fingerprint;
 
+   --------------
+   -- By_Keyid --
+   --------------
+
    function By_Keyid (Request : Status.Data) return Response.Data is
    begin
       if Status.Method (Request) /= Status.GET then
@@ -50,6 +76,10 @@ package body VKS is
       return Response.Build
         (MIME.Text_HTML, "<p>WIP on GET by-keyid</p>");
    end By_Keyid;
+
+   --------------
+   -- By_Email --
+   --------------
 
    function By_Email (Request : Status.Data) return Response.Data is
       use Email;
@@ -71,14 +101,42 @@ package body VKS is
         ("<p> Key not found</p>");
    end By_Email;
 
+      -------------------
+   -- Extract_Email --
+   -------------------
+
+   function Extract_Email (Key : String) return String_Lists.List is
+      use GNAT.Regpat;
+      Dec : constant String := AWS.Translator.Base64_Decode (Key);
+      Current : Natural := Dec'First;
+      Matches : Match_Array (0 .. 0);
+      Result : String_Lists.List := String_Lists.Empty_List;
+   begin
+      loop
+         Match (Re, Dec, Matches, Current);
+         exit when Matches (0) = No_Match;
+         Result.Append (Dec (Matches (0).First .. Matches (0).Last));
+         Current := Matches (0).Last + 1;
+      end loop;
+      return Result;
+   end Extract_Email;
+
+   ------------
+   -- Upload --
+   ------------
+
    function Upload (Request : Status.Data) return Response.Data is
       P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
       E : Email.Email_Address_Type;
-      Key : constant Keys.Key_Type :=
-        Keys.From_String (AWS.Parameters.Get (P, "key"));
+      Key : constant Keys.Key_Type := Keys.From_String ("1");
       Token : Tokens.Token_Type;
+      Keytext : constant String := AWS.Parameters.Get (P, "keytext");
+      Addr : constant String_Lists.List := Extract_Email (Keytext);
    begin
-      Email.To_Email_Address (AWS.Parameters.Get (P, "email"), E);
+      for S of Addr loop
+         Ada.Text_IO.Put_Line (S);
+      end loop;
+      Email.To_Email_Address (Addr.First_Element, E);
       --  check for valid email
       pragma Assert (E in Email.Valid_Email_Address_Type);
       Server.Request_Add (E, Key, Token);
@@ -94,6 +152,10 @@ package body VKS is
            ("<p>" & S & "</p>" & "<p>" & L & "</p>");
       end;
    end Upload;
+
+   --------------------
+   -- Request_Verify --
+   --------------------
 
    function Request_Verify (Request : Status.Data) return Response.Data is
       P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);

@@ -1,6 +1,9 @@
+with Ada.Containers.Functional_Maps;
+with Ada.Strings.Unbounded;
+use type Ada.Strings.Unbounded.Unbounded_String;
+
 with Email; use Email;
 with Keys;  use Keys;
-with Ada.Containers.Functional_Maps;
 
 --  Interface to the token handling mechanism. It can be implemented using
 --  internal databases (like here) or by haching all the required information

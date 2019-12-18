@@ -1,5 +1,4 @@
 with Ada.Directories;
-with Ada.Text_IO;
 with AWS.Messages;
 with AWS.MIME;
 with AWS.Utils;
@@ -9,19 +8,13 @@ package body User_Interface is
 
    function Starts_With (S, Prefix : String) return Boolean;
 
-   function Starts_With (S, Prefix : String) return Boolean is
-   begin
-      if Prefix'Length > S'Length then
-         return False;
-      else
-         return Prefix = S (S'First .. S'First + Prefix'Length - 1);
-      end if;
-   end Starts_With;
+   ---------
+   -- Get --
+   ---------
 
    function Get (Request : in AWS.Status.Data) return AWS.Response.Data is
       URI      : constant String := AWS.Status.URI (Request);
    begin
-      Ada.Text_IO.Put_Line (URI);
       if Starts_With (URI, "/vks") then
          if URI = "/vks/v1/by-fingerprint" then
             return VKS.By_Fingerprint (Request);
@@ -58,5 +51,17 @@ package body User_Interface is
          "<p>Page '" & URI & "' Not found.");
    end Get;
 
+   -----------------
+   -- Starts_With --
+   -----------------
+
+   function Starts_With (S, Prefix : String) return Boolean is
+   begin
+      if Prefix'Length > S'Length then
+         return False;
+      else
+         return Prefix = S (S'First .. S'First + Prefix'Length - 1);
+      end if;
+   end Starts_With;
 
 end User_Interface;
