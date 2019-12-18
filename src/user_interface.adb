@@ -4,7 +4,7 @@ with AWS.MIME;
 with AWS.Utils;
 with VKS;
 
-package body User_Interface is
+package body User_Interface with SPARK_Mode => Off is
 
    function Starts_With (S, Prefix : String) return Boolean;
 

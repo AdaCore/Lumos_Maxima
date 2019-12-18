@@ -15,7 +15,7 @@ with Tokens;
 
 use type AWS.Status.Request_Method;
 
-package body VKS is
+package body VKS with SPARK_Mode => Off is
 
    package String_Lists is new
      Ada.Containers.Indefinite_Doubly_Linked_Lists (String);

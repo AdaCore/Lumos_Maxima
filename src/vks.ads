@@ -3,7 +3,7 @@ with AWS.Response;
 
 use AWS;
 
-package VKS is
+package VKS with SPARK_Mode => Off is
 
    function By_Fingerprint (Request : Status.Data) return Response.Data;
 
