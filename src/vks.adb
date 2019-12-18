@@ -11,6 +11,26 @@ use type AWS.Status.Request_Method;
 
 package body VKS is
 
+   function Build_HTML_Answer (S : String) return Response.Data;
+
+   function Build_HTML_Answer (S : String) return Response.Data is
+   begin
+      return Response.Build
+        (MIME.Text_HTML,
+         "<!DOCTYPE html>" &
+           "<html>" &
+           "<head>" &
+           "<script src=""https://code.jquery.com/jquery-1.10.2.js""></script>" &
+           "<link rel=""stylesheet"" href=""style.css"">" &
+           "</head>" &
+           "<body>" &
+           "<div id=""nav-placeholder""> </div>" &
+           "<script> $(function(){ $(""#nav-placeholder"").load(""/nav.html""); }); </script>" &
+           S &
+           "</body>" &
+           "</html>");
+   end Build_HTML_Answer;
+
    function By_Fingerprint (Request : Status.Data) return Response.Data is
    begin
       if Status.Method (Request) /= Status.GET then
@@ -43,12 +63,12 @@ package body VKS is
       if E /= No_Email then
          K := Server.Query_Email (E);
          if K /= No_Key then
-            return Response.Build
-              (MIME.Text_HTML, "<p> The key is " & To_String (K) & "</p>");
+            return Build_HTML_Answer
+              ("<p> The key is " & To_String (K) & "</p>");
          end if;
       end if;
-      return Response.Build
-        (MIME.Text_HTML, "<p> Key not found</p>");
+      return Build_HTML_Answer
+        ("<p> Key not found</p>");
    end By_Email;
 
    function Upload (Request : Status.Data) return Response.Data is
@@ -70,8 +90,8 @@ package body VKS is
            "This is the confirmation link to verify the add." &
            " Normally we would send it by email, but this is just a demo.";
       begin
-         return Response.Build
-           (MIME.Text_HTML, "<p>" & S & "</p>" & "<p>" & L & "</p>");
+         return Build_HTML_Answer
+           ("<p>" & S & "</p>" & "<p>" & L & "</p>");
       end;
    end Upload;
 
@@ -83,11 +103,11 @@ package body VKS is
    begin
       Server.Verify_Add (Token, Status);
       if Status then
-         return Response.Build
-           (MIME.Text_HTML, "<p>Successfully added key</p>");
+         return Build_HTML_Answer
+           ("<p>Successfully added key</p>");
       else
-         return Response.Build
-           (MIME.Text_HTML, "<p>Error when adding the key</p>");
+         return Build_HTML_Answer
+           ("<p>Error when adding the key</p>");
       end if;
    end Request_Verify;
 
