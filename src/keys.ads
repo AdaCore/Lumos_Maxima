@@ -17,4 +17,5 @@ private
    
    function To_String (S : Key_Type) return String is
       (Key_Type'Image (S));
+
 end Keys;

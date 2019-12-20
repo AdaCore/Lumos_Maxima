@@ -3,7 +3,7 @@ use type Ada.Containers.Count_Type;
 
 package body Email with SPARK_Mode is
 
-   type Length_Type is range 0 .. 256;
+   type Length_Type is range 0 .. Max_Email_Length;
 
    type Email_Address_Buffer_Type is array (Length_Type range <>) of Character;
 
@@ -15,57 +15,74 @@ package body Email with SPARK_Mode is
 
    package Int_To_String is new
      Ada.Containers.Formal_Vectors
-       (Index_Type => Valid_Email_Address_Type,
+       (Index_Type   => Valid_Email_Address_Type,
         Element_Type => Email_Address_Var_Type);
 
-   Data : Int_To_String.Vector (1024);
+   Data : Int_To_String.Vector (Max_Num_Emails);
+   -- Data holds the map from unique identifiers to the actual emails
 
-   --------------
-   -- Is_Valid --
-   --------------
+   ---------------
+   -- Invariant --
+   ---------------
 
    function Invariant return Boolean is
      ((for all I1 in 1 .. Int_To_String.Last_Index (Data) =>
-          (for all I2 in 1 .. Int_To_String.Last_Index (Data) =>
-             (if I1 /= I2 then
-                     Int_To_String.Element (Data, I1) /=
-                    Int_To_String.Element (Data, I2))))
+         (for all I2 in 1 .. Int_To_String.Last_Index (Data) =>
+            (if I1 /= I2 then
+               Int_To_String.Element (Data, I1) /=
+               Int_To_String.Element (Data, I2))))
       and then Length (Email_Model.Numbers) =
-          Ada.Containers.Count_Type (Int_To_String.Last_Index (Data))
+        Ada.Containers.Count_Type (Int_To_String.Last_Index (Data))
       and then
         (for all I in 1 .. Int_To_String.Last_Index (Data) =>
-              Contains (Email_Model, I))
+           Contains (Email_Model, I))
       and then
         (for all I of Email_Model.Numbers =>
-              I <= Int_To_String.Last_Index (Data)));
+           I <= Int_To_String.Last_Index (Data)));
+
+   ------------------
+   -- Seen_Numbers --
+   ------------------
+
+   function Seen_Numbers return Number_Set is (Email_Model);
 
    ----------------------
    -- To_Email_Address --
    ----------------------
 
-   procedure To_Email_Address (S : String;
-                               Email : out Email_Address_Type)
+   procedure To_Email_Address
+     (S     :     String;
+      Email : out Email_Address_Type)
    is
       use Ada.Containers;
       use Int_To_String;
-      Copy : constant String (1 .. S'Length) := S;
+      subtype S_Type is String (1 .. S'Length);
+      Copy : constant Email_Address_Buffer_Type :=
+        Email_Address_Buffer_Type(S_Type(S));
    begin
+      --  First look in Data to see if S was already added.
+
       for Index in 1 .. Last_Index (Data) loop
          pragma Loop_Invariant
-           (for all K in 1 .. Index - 1 =>
-              Element (Data, K).Ct /= Email_Address_Buffer_Type (Copy));
-         if Element (Data, Index).Ct = Email_Address_Buffer_Type (Copy) then
+           (for all K in 1 .. Index - 1 => Element (Data, K).Ct /= Copy);
+         if Element (Data, Index).Ct = Copy then
             Email := Index;
             return;
          end if;
       end loop;
+
+      --  Otherwise if the limit of emails registered has not been reached,
+      --  add S and return the corresponding unique identifier.
+
       if Length (Data) < Max_Num_Emails then
-         Append (Data, (Len => S'Length,
-                        Ct => Email_Address_Buffer_Type (Copy)));
+         Append (Data, (Len => S'Length, Ct => Copy));
          Email := Last_Index (Data);
          Email_Model.Numbers := Add (Email_Model.Numbers, Email);
-         pragma Assert ((for all I in 1 .. Int_To_String.Last_Index (Data) =>
-                               Contains (Email_Model, I)));
+         pragma Assert (for all I in 1 .. Int_To_String.Last_Index (Data) =>
+                          Contains (Email_Model, I));
+
+      --  In the last case, S could not be added.
+
       else
          Email := No_Email;
       end if;
@@ -79,7 +96,5 @@ package body Email with SPARK_Mode is
    begin
       return String (Int_To_String.Element (Data, E).Ct);
    end To_String;
-
-   function Seen_Numbers return Number_Set is (Email_Model);
 
 end Email;

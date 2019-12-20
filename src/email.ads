@@ -17,33 +17,34 @@ package Email with SPARK_Mode is
 
    type Number_Set is private with Ghost;
 
-   function Seen_Numbers return Number_Set with
-     Ghost;
+   function Seen_Numbers return Number_Set with Ghost;
 
    function "<=" (Left, Right : Number_Set) return Boolean with Ghost;
 
-   function Contains (Set : Number_Set; Email : Valid_Email_Address_Type)
-                      return Boolean with Ghost;
+   function Contains
+     (Set   : Number_Set;
+      Email : Valid_Email_Address_Type)
+      return Boolean with Ghost;
 
    function Invariant return Boolean with Ghost;
 
-   procedure To_Email_Address (S : String;
-                               Email : out Email_Address_Type)
-     with Pre => S'Length <= 256 and then Invariant,
-     Post =>
-       (Invariant and
-          (if Email /= No_Email then Contains (Seen_Numbers, Email)) and
-            Seen_Numbers'Old <= Seen_Numbers);
-      --  returns No_Email if email address integer could not be created
+   procedure To_Email_Address
+     (S     :     String;
+      Email : out Email_Address_Type)
+   with Pre  => S'Length <= 256 and then Invariant,
+        Post => Invariant
+          and (if Email /= No_Email then Contains (Seen_Numbers, Email))
+          and Seen_Numbers'Old <= Seen_Numbers;
+   --  returns No_Email if email address integer could not be created
 
    function To_String (E : Valid_Email_Address_Type) return String
-     with Pre => Contains (Seen_Numbers, E) and then Invariant,
+     with Pre  => Contains (Seen_Numbers, E) and then Invariant,
           Post => To_String'Result'Length <= 256;
 
 private
 
-   package Number_Sets is new Ada.Containers.Functional_Sets
-     (Valid_Email_Address_Type);
+   package Number_Sets is
+     new Ada.Containers.Functional_Sets (Valid_Email_Address_Type);
 
    use Number_Sets;
 
@@ -54,7 +55,10 @@ private
    function "<=" (Left, Right : Number_Set) return Boolean is
      (Left.Numbers <= Right.Numbers);
 
-   function Contains (Set : Number_Set; Email : Valid_Email_Address_Type)
-     return Boolean is (Contains (Set.Numbers, Email));
+   function Contains
+     (Set   : Number_Set;
+      Email : Valid_Email_Address_Type)
+      return Boolean
+   is (Contains (Set.Numbers, Email));
 
 end Email;

@@ -7,8 +7,7 @@ package body Database with SPARK_Mode,
 is
 
    package DB_Pack is new Ada.Containers.Formal_Doubly_Linked_Lists
-     (Element_Type => DB_Entry_Type,
-      "="          => "=");
+     (Element_Type => DB_Entry_Type);
    use DB_Pack;
 
    Database : DB_Pack.List (1000);
@@ -50,9 +49,9 @@ is
 
      ((for all I in Formal_Model.Model (Database) =>
          (for all J in Formal_Model.Model (Database) =>
-              (if Formal_Model.Element (Formal_Model.Model (Database), I) =
-                   Formal_Model.Element (Formal_Model.Model (Database), J)
-               then I = J)))
+            (if Formal_Model.Element (Formal_Model.Model (Database), I) =
+                Formal_Model.Element (Formal_Model.Model (Database), J)
+             then I = J)))
 
       --  Database and DB_Model contain the same pairs
 
@@ -60,18 +59,23 @@ is
       and (for all Pair of DB_Model => Contains (Database, Pair))
       and Length (DB_Model) = Length (Database));
 
+   -----------
+   -- Model --
+   -----------
+
+   function Model return Model_Type is (DB_Model);
+
    -----------------
    -- Query_Email --
    -----------------
 
-   function Query_Email (Email : Email_Address_Type) return Key_Type
-   is
+   function Query_Email (Email : Email_Address_Type) return Key_Type is
       use Formal_Model;
    begin
       for C in Database loop
          pragma Loop_Invariant
            (for all I in 1 .. P.Get (Positions (Database), C) - 1 =>
-                Element (Model (Database), I).Email /= Email);
+              Element (Model (Database), I).Email /= Email);
          declare
             Ent : DB_Entry_Type renames Element (Database, C);
          begin
@@ -82,12 +86,6 @@ is
       end loop;
       return No_Key;
    end Query_Email;
-
-   -----------
-   -- Model --
-   -----------
-
-   function Model return Model_Type is (DB_Model);
 
    --------------------------
    -- Remove_From_Database --
