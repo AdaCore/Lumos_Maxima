@@ -86,11 +86,11 @@ package body VKS with SPARK_Mode => Off is
       use Keys;
 
       P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
-      E : Email_Address_Type;
+      E : Email_Id;
       K : Key_Type;
    begin
       To_Email_Address (AWS.Parameters.Get (P, "email"), E);
-      if E /= No_Email then
+      if E /= No_Email_Id then
          K := Server.Query_Email (E);
          if K /= No_Key then
             return Build_HTML_Answer
@@ -127,7 +127,7 @@ package body VKS with SPARK_Mode => Off is
 
    function Upload (Request : Status.Data) return Response.Data is
       P : constant AWS.Parameters.List := AWS.Status.Parameters (Request);
-      E : Email.Email_Address_Type;
+      E : Email.Email_Id;
       Key : constant Keys.Key_Type := Keys.From_String ("1");
       Token : Tokens.Token_Type;
       Keytext : constant String := AWS.Parameters.Get (P, "keytext");
@@ -138,7 +138,7 @@ package body VKS with SPARK_Mode => Off is
       end loop;
       Email.To_Email_Address (Addr.First_Element, E);
       --  check for valid email
-      pragma Assert (E in Email.Valid_Email_Address_Type);
+      pragma Assert (E in Email.Valid_Email_Id);
       Server.Request_Add (E, Key, Token);
       declare
          L : constant String :=

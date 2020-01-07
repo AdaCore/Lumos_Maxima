@@ -16,7 +16,7 @@ package Server with SPARK_Mode is
      (Tokens.Invariant and then Database.Invariant)
    with Ghost;
 
-   function Query_Email (Email : Email_Address_Type) return Key_Type with
+   function Query_Email (Email : Email_Id) return Key_Type with
      Pre => Invariant,
      Contract_Cases =>
 
@@ -32,7 +32,7 @@ package Server with SPARK_Mode is
           Query_Email'Result = No_Key);
    
    procedure Request_Add
-     (Email : Email_Address_Type;
+     (Email : Email_Id;
       Key   : Key_Type;
       Token : out Token_Type)
    with Pre => Invariant,
@@ -76,7 +76,7 @@ package Server with SPARK_Mode is
      and Seen_Tokens'Old <= Seen_Tokens;
 
    procedure Request_Remove
-      (Email : Email_Address_Type;
+      (Email : Email_Id;
        Key   : Key_Type;
        Token : out Token_Type)
    with Pre => Invariant,

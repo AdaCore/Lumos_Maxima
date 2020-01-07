@@ -5,7 +5,7 @@ package body Server with SPARK_Mode is
    -----------------
 
    procedure Request_Add
-      (Email : Email_Address_Type;
+      (Email : Email_Id;
        Key   : Key_Type;
        Token : out Token_Type)
    is
@@ -21,7 +21,7 @@ package body Server with SPARK_Mode is
      (Token  : Token_Type;
       Status : out Boolean)
    is
-      Email : Email_Address_Type;
+      Email : Email_Id;
       Key   : Key_Type;
    begin
       Get_Add_Info (Token, Status, Email, Key);
@@ -35,7 +35,7 @@ package body Server with SPARK_Mode is
    -----------------
 
    function Query_Email
-      (Email : Email_Address_Type)
+      (Email : Email_Id)
       return Key_Type
    is
    begin
@@ -47,7 +47,7 @@ package body Server with SPARK_Mode is
    --------------------
 
    procedure Request_Remove
-      (Email : Email_Address_Type;
+      (Email : Email_Id;
        Key   : Key_Type;
        Token : out Token_Type)
    is
@@ -67,7 +67,7 @@ package body Server with SPARK_Mode is
      (Token  : Token_Type;
       Status : out Boolean)
    is
-      Email : Email_Address_Type;
+      Email : Email_Id;
       Key   : Key_Type;
    begin
       Get_Remove_Info (Token, Status, Email, Key);

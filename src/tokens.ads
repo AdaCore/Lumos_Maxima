@@ -38,7 +38,7 @@ is
 
    function Get_Email
      (Set   : Token_Set;
-      Token : Token_Type) return Email_Address_Type
+      Token : Token_Type) return Email_Id
    with
      Ghost,
      Pre  => Contains (Set, Token);
@@ -72,7 +72,7 @@ is
    procedure Get_Add_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
+      Email : out Email_Id;
       Key   : out Key_Type)
    with
    --  Global => (In_Out => (Clock_State, Token_State)),
@@ -83,13 +83,13 @@ is
             and Is_Add (Seen_Tokens, Token)
             and Email = Get_Email (Seen_Tokens, Token)
             and Key = Get_Key (Seen_Tokens, Token)
-          else Email = No_Email and Key = No_Key)
+          else Email = No_Email_Id and Key = No_Key)
      and Seen_Tokens'Old = Seen_Tokens;
 
    procedure Get_Remove_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
+      Email : out Email_Id;
       Key   : out Key_Type)
    with
   --   Global => (In_Out => (Clock_State, Token_State)),
@@ -100,7 +100,7 @@ is
             and Is_Remove (Seen_Tokens, Token)
             and Email = Get_Email (Seen_Tokens, Token)
             and Key = Get_Key (Seen_Tokens, Token)
-          else Email = No_Email and Key = No_Key)
+          else Email = No_Email_Id and Key = No_Key)
      and Seen_Tokens'Old = Seen_Tokens;
 
    --  The two procedures below are used to create a token. They may or may not
@@ -111,7 +111,7 @@ is
    --  (modulo the cardinality of the set of seen tokens).
 
    procedure Include_Add_Request
-     (Email : Email_Address_Type;
+     (Email : Email_Id;
       Key   : Key_Type;
       Token : out Token_Type)
    with
@@ -125,7 +125,7 @@ is
      and Seen_Tokens'Old <= Seen_Tokens;
 
    procedure Include_Remove_Request
-     (Email : Email_Address_Type;
+     (Email : Email_Id;
       Key   : Key_Type;
       Token : out Token_Type)
    with
@@ -157,7 +157,7 @@ private
 
    type Token_Info is record
       Key    : Key_Type;
-      Email  : Email_Address_Type;
+      Email  : Email_Id;
       Is_Add : Boolean;
    end record;
 
@@ -177,7 +177,7 @@ private
 
    function Get_Email
      (Set   : Token_Set;
-      Token : Token_Type) return Email_Address_Type
+      Token : Token_Type) return Email_Id
    is (Get (Set.Tokens, Token).Email);
 
    function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Type is

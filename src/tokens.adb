@@ -11,7 +11,7 @@ is
 
    type DB_Entry_Type is record
       Key   : Key_Type;
-      Email : Email_Address_Type;
+      Email : Email_Id;
    end record;
 
    package Request_Maps is new Ada.Containers.Formal_Hashed_Maps
@@ -64,7 +64,7 @@ is
    procedure Get_Add_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
+      Email : out Email_Id;
       Key   : out Key_Type)
    is
       use Request_Maps;
@@ -79,7 +79,7 @@ is
             Valid := True;
          end;
       else
-         Email := No_Email;
+         Email := No_Email_Id;
          Key := No_Key;
          Valid := False;
       end if;
@@ -92,7 +92,7 @@ is
    procedure Get_Remove_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
+      Email : out Email_Id;
       Key   : out Key_Type)
    is
       use Request_Maps;
@@ -107,7 +107,7 @@ is
             Valid := True;
          end;
       else
-         Email := No_Email;
+         Email := No_Email_Id;
          Key := No_Key;
          Valid := False;
       end if;
@@ -118,7 +118,7 @@ is
    -------------------------
 
    procedure Include_Add_Request
-     (Email : Email_Address_Type;
+     (Email : Email_Id;
       Key   : Key_Type;
       Token : out Token_Type)
    is
@@ -143,7 +143,7 @@ is
    ----------------------------
 
    procedure Include_Remove_Request
-     (Email : Email_Address_Type;
+     (Email : Email_Id;
       Key   : Key_Type;
       Token : out Token_Type)
    is
