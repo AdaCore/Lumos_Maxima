@@ -44,7 +44,7 @@ package body Email with SPARK_Mode is
    ----------------------
 
    procedure To_Email_Id (S : String;
-                               Email : out Email_Id)
+                          Email : out Email_Id)
    is
       use Ada.Containers;
       use Int_To_String;

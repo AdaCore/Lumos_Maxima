@@ -28,7 +28,7 @@ package Email with SPARK_Mode is
    function Invariant return Boolean with Ghost;
 
    procedure To_Email_Id (S : String;
-                               Email : out Email_Id)
+                          Email : out Email_Id)
      with Pre => S'Length <= 256 and then Invariant,
      Post =>
        (Invariant and
