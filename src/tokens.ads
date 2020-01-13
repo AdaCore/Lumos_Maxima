@@ -1,6 +1,4 @@
 with Ada.Containers.Functional_Maps;
-with Ada.Strings.Unbounded;
-use type Ada.Strings.Unbounded.Unbounded_String;
 
 with Email; use Email;
 with Keys;  use Keys;
@@ -43,7 +41,7 @@ is
      Ghost,
      Pre  => Contains (Set, Token);
 
-   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Type with
+   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Id with
      Ghost,
      Pre => Contains (Set, Token);
 
@@ -73,7 +71,7 @@ is
      (Token : Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
-      Key   : out Key_Type)
+      Key   : out Key_Id)
    with
    --  Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
@@ -90,7 +88,7 @@ is
      (Token : Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
-      Key   : out Key_Type)
+      Key   : out Key_Id)
    with
   --   Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
@@ -112,7 +110,7 @@ is
 
    procedure Include_Add_Request
      (Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
       Token : out Token_Type)
    with
      Global => (In_Out => (Clock_State, Token_State)),
@@ -126,7 +124,7 @@ is
 
    procedure Include_Remove_Request
      (Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
       Token : out Token_Type)
    with
      Global => (In_Out => (Clock_State, Token_State)),
@@ -156,7 +154,7 @@ private
    --  to link seen tokens to a record holding all the necessary information.
 
    type Token_Info is record
-      Key    : Key_Type;
+      Key    : Key_Id;
       Email  : Email_Id;
       Is_Add : Boolean;
    end record;
@@ -180,7 +178,7 @@ private
       Token : Token_Type) return Email_Id
    is (Get (Set.Tokens, Token).Email);
 
-   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Type is
+   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Id is
      (Get (Set.Tokens, Token).Key);
 
    function Is_Add (Set : Token_Set; Token : Token_Type) return Boolean is

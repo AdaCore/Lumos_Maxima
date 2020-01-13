@@ -10,7 +10,7 @@ is
    --  Containers used for our real datastructure
 
    type DB_Entry_Type is record
-      Key   : Key_Type;
+      Key   : Key_Id;
       Email : Email_Id;
    end record;
 
@@ -65,7 +65,7 @@ is
      (Token : Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
-      Key   : out Key_Type)
+      Key   : out Key_Id)
    is
       use Request_Maps;
       C : constant Cursor := Find (Pending_Add_Map, Token);
@@ -93,7 +93,7 @@ is
      (Token : Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
-      Key   : out Key_Type)
+      Key   : out Key_Id)
    is
       use Request_Maps;
       C : constant Cursor := Find (Pending_Remove_Map, Token);
@@ -119,7 +119,7 @@ is
 
    procedure Include_Add_Request
      (Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
       Token : out Token_Type)
    is
       T : Token_Type;
@@ -144,7 +144,7 @@ is
 
    procedure Include_Remove_Request
      (Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
       Token : out Token_Type)
    is
       T : Token_Type;

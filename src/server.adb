@@ -6,7 +6,7 @@ package body Server with SPARK_Mode is
 
    procedure Request_Add
       (Email : Email_Id;
-       Key   : Key_Type;
+       Key   : Key_Id;
        Token : out Token_Type)
    is
    begin
@@ -22,7 +22,7 @@ package body Server with SPARK_Mode is
       Status : out Boolean)
    is
       Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
    begin
       Get_Add_Info (Token, Status, Email, Key);
       if Status and then not Contains (Email, Key) then
@@ -36,7 +36,7 @@ package body Server with SPARK_Mode is
 
    function Query_Email
       (Email : Email_Id)
-      return Key_Type
+      return Key_Id
    is
    begin
       return Database.Query_Email (Email);
@@ -48,7 +48,7 @@ package body Server with SPARK_Mode is
 
    procedure Request_Remove
       (Email : Email_Id;
-       Key   : Key_Type;
+       Key   : Key_Id;
        Token : out Token_Type)
    is
    begin
@@ -68,7 +68,7 @@ package body Server with SPARK_Mode is
       Status : out Boolean)
    is
       Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
    begin
       Get_Remove_Info (Token, Status, Email, Key);
       if Status and then Contains (Email, Key) then

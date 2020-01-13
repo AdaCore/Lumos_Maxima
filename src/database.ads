@@ -1,5 +1,3 @@
-with Ada.Strings.Unbounded;
-use type Ada.Strings.Unbounded.Unbounded_String;
 with Email; use Email;
 with Keys;  use Keys;
 with Ada.Containers.Functional_Sets;
@@ -15,7 +13,7 @@ is
    --  The model of a database is a set of pairs of a key and an email
 
    type DB_Entry_Type is record
-      Key   : Key_Type;
+      Key   : Key_Id;
       Email : Email_Id;
    end record;
 
@@ -38,13 +36,13 @@ is
 
    function Contains
      (Email : Email_Id;
-      Key   : Key_Type) return Boolean
+      Key   : Key_Id) return Boolean
    with
      Global => Database_State,
      Pre    => Invariant,
      Post   => Contains'Result = Contains (Model, (Key, Email));
 
-   function Query_Email (Email : Email_Id) return Key_Type with
+   function Query_Email (Email : Email_Id) return Key_Id with
      Global         => Database_State,
      Pre            => Invariant,
      Contract_Cases =>
@@ -57,7 +55,7 @@ is
 
    procedure Add_To_Database
      (Email : Email_Id;
-      Key   : Key_Type)
+      Key   : Key_Id)
    with
      Global => (In_Out => Database_State),
      Pre    => Invariant and then not Contains (Email, Key),
@@ -68,7 +66,7 @@ is
 
    procedure Remove_From_Database
      (Email : Email_Id;
-      Key   : Key_Type)
+      Key   : Key_Id)
    with
      Global => (In_Out => Database_State),
      Pre    => Invariant and then Contains (Email, Key),

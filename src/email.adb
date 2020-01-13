@@ -18,7 +18,7 @@ package body Email with SPARK_Mode is
        (Index_Type => Valid_Email_Id,
         Element_Type => Email_Address_Var_Type);
 
-   Data : Int_To_String.Vector (1024);
+   Data : Int_To_String.Vector (Max_Num_Emails);
 
    --------------
    -- Is_Valid --
@@ -43,7 +43,7 @@ package body Email with SPARK_Mode is
    -- To_Email_Address --
    ----------------------
 
-   procedure To_Email_Address (S : String;
+   procedure To_Email_Id (S : String;
                                Email : out Email_Id)
    is
       use Ada.Containers;
@@ -69,16 +69,7 @@ package body Email with SPARK_Mode is
       else
          Email := No_Email_Id;
       end if;
-   end To_Email_Address;
-
-   ---------------
-   -- To_String --
-   ---------------
-
-   function To_String (E : Valid_Email_Id) return String is
-   begin
-      return String (Int_To_String.Element (Data, E).Ct);
-   end To_String;
+   end To_Email_Id;
 
    function Seen_Numbers return Number_Set is (Email_Model);
 

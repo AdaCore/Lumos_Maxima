@@ -2,7 +2,7 @@
 <html>
 <head> 
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="/style.css">
 </head>
 <body>
 <div id="nav-placeholder"> </div>
@@ -11,8 +11,9 @@
 <h1>Adding a Key</h1>
 
  <form action="/vks/v1/upload" method="post">
-  Email address:<br>
-  <input type="text" name="keytext" value="Enter public key here"><br>
+  Public key:<br>
+  <textarea name="keytext" rows="30" cols="80">Enter public key here.</textarea>
+  <br/>
   <input type="submit" value="Submit">
 </form> 
 

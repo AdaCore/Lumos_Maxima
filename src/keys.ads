@@ -1,19 +1,15 @@
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 package Keys is
 
-   subtype Key_Type is Unbounded_String;
+   Max_Num_Keys : constant := 1024;
+   
+   type Key_Id is new Integer range 0 .. Max_Num_Keys;
+   subtype Valid_Key_Id is Key_Id range 1 .. Key_Id'Last;
 
-   No_Key : constant Key_Type;
+   No_Key : constant Key_Id := 0;
    
-   function From_String (S : String) return Key_Type;
-   function To_String (S : Key_Type) return String;
-private
+   procedure To_Key_Id (S : String;
+                        Id : out Key_Id);
+   
+   function To_Key_String (Id : Key_Id) return String;
 
-   No_Key : constant Key_Type := Null_Unbounded_String;
-   
-   function From_String (S : String) return Key_Type is
-      (To_Unbounded_String (S));
-   
-   function To_String (S : Key_Type) return String is
-      (Ada.Strings.Unbounded.To_String (S));
 end Keys;

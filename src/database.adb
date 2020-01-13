@@ -19,7 +19,7 @@ is
 
    procedure Add_To_Database
      (Email : Email_Id;
-      Key   : Key_Type)
+      Key   : Key_Id)
    is
    begin
       pragma Assume
@@ -36,7 +36,7 @@ is
 
    function Contains
      (Email : Email_Id;
-      Key   : Key_Type) return Boolean
+      Key   : Key_Id) return Boolean
    is (Contains (Database, (Key, Email)));
 
    ---------------
@@ -63,7 +63,7 @@ is
    -- Query_Email --
    -----------------
 
-   function Query_Email (Email : Email_Id) return Key_Type
+   function Query_Email (Email : Email_Id) return Key_Id
    is
       use Formal_Model;
    begin
@@ -94,7 +94,7 @@ is
 
    procedure Remove_From_Database
      (Email : Email_Id;
-      Key   : Key_Type)
+      Key   : Key_Id)
    is
       Pos : Cursor := Find (Database, (Key, Email));
    begin

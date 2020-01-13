@@ -27,7 +27,7 @@ package Email with SPARK_Mode is
 
    function Invariant return Boolean with Ghost;
 
-   procedure To_Email_Address (S : String;
+   procedure To_Email_Id (S : String;
                                Email : out Email_Id)
      with Pre => S'Length <= 256 and then Invariant,
      Post =>
@@ -35,10 +35,6 @@ package Email with SPARK_Mode is
           (if Email /= No_Email_Id then Contains (Seen_Numbers, Email)) and
             Seen_Numbers'Old <= Seen_Numbers);
       --  returns No_Email if email address integer could not be created
-
-   function To_String (E : Valid_Email_Id) return String
-     with Pre => Contains (Seen_Numbers, E) and then Invariant,
-          Post => To_String'Result'Length <= 256;
 
 private
 

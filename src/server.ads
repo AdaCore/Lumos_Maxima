@@ -1,5 +1,3 @@
-with Ada.Strings.Unbounded;
-use type Ada.Strings.Unbounded.Unbounded_String;
 with Email;    use Email;
 with Keys;     use Keys;
 with Tokens;   use Tokens;
@@ -16,7 +14,7 @@ package Server with SPARK_Mode is
      (Tokens.Invariant and then Database.Invariant)
    with Ghost;
 
-   function Query_Email (Email : Email_Id) return Key_Type with
+   function Query_Email (Email : Email_Id) return Key_Id with
      Pre => Invariant,
      Contract_Cases =>
 
@@ -33,7 +31,7 @@ package Server with SPARK_Mode is
    
    procedure Request_Add
      (Email : Email_Id;
-      Key   : Key_Type;
+      Key   : Key_Id;
       Token : out Token_Type)
    with Pre => Invariant,
      Post => Invariant
@@ -77,7 +75,7 @@ package Server with SPARK_Mode is
 
    procedure Request_Remove
       (Email : Email_Id;
-       Key   : Key_Type;
+       Key   : Key_Id;
        Token : out Token_Type)
    with Pre => Invariant,
      Post => Invariant
