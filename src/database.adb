@@ -1,5 +1,4 @@
 with Ada.Containers.Formal_Doubly_Linked_Lists;
-with Ada.Containers.Formal_Hashed_Maps;
 use Ada.Containers;
 
 package body Database with SPARK_Mode,
@@ -19,8 +18,8 @@ is
    ---------------------
 
    procedure Add_To_Database
-     (Email : Email_Address_Type;
-      Key   : Key_Type)
+     (Email : Email_Id;
+      Key   : Key_Id)
    is
    begin
       pragma Assume
@@ -36,8 +35,8 @@ is
    --------------
 
    function Contains
-     (Email : Email_Address_Type;
-      Key   : Key_Type) return Boolean
+     (Email : Email_Id;
+      Key   : Key_Id) return Boolean
    is (Contains (Database, (Key, Email)));
 
    ---------------
@@ -64,7 +63,7 @@ is
    -- Query_Email --
    -----------------
 
-   function Query_Email (Email : Email_Address_Type) return Key_Type
+   function Query_Email (Email : Email_Id) return Key_Id
    is
       use Formal_Model;
    begin
@@ -94,8 +93,8 @@ is
    --------------------------
 
    procedure Remove_From_Database
-     (Email : Email_Address_Type;
-      Key   : Key_Type)
+     (Email : Email_Id;
+      Key   : Key_Id)
    is
       Pos : Cursor := Find (Database, (Key, Email));
    begin

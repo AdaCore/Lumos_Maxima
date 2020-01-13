@@ -13,8 +13,8 @@ is
    --  The model of a database is a set of pairs of a key and an email
 
    type DB_Entry_Type is record
-      Key   : Key_Type;
-      Email : Email_Address_Type;
+      Key   : Key_Id;
+      Email : Email_Id;
    end record;
 
    package DB_Entry_Sets is new Ada.Containers.Functional_Sets
@@ -35,14 +35,14 @@ is
    --  Queries on the content of the database
 
    function Contains
-     (Email : Email_Address_Type;
-      Key   : Key_Type) return Boolean
+     (Email : Email_Id;
+      Key   : Key_Id) return Boolean
    with
      Global => Database_State,
      Pre    => Invariant,
      Post   => Contains'Result = Contains (Model, (Key, Email));
 
-   function Query_Email (Email : Email_Address_Type) return Key_Type with
+   function Query_Email (Email : Email_Id) return Key_Id with
      Global         => Database_State,
      Pre            => Invariant,
      Contract_Cases =>
@@ -54,8 +54,8 @@ is
    --  Queries to update the database
 
    procedure Add_To_Database
-     (Email : Email_Address_Type;
-      Key   : Key_Type)
+     (Email : Email_Id;
+      Key   : Key_Id)
    with
      Global => (In_Out => Database_State),
      Pre    => Invariant and then not Contains (Email, Key),
@@ -65,8 +65,8 @@ is
      and Contains (Model, (Key, Email));
 
    procedure Remove_From_Database
-     (Email : Email_Address_Type;
-      Key   : Key_Type)
+     (Email : Email_Id;
+      Key   : Key_Id)
    with
      Global => (In_Out => Database_State),
      Pre    => Invariant and then Contains (Email, Key),

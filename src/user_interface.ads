@@ -1,12 +1,8 @@
 with AWS.Status;
 with AWS.Response;
 
-use AWS;
+package User_Interface with SPARK_Mode => Off is
 
-package User_Interface is
-
-   function User_Add (Request : Status.Data) return Response.Data;
-   function Index (Request : Status.Data) return Response.Data;
-   function Query (Request : Status.Data) return Response.Data;
+   function Get (Request : in AWS.Status.Data) return AWS.Response.Data;
 
 end User_Interface;

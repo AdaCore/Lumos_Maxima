@@ -1,6 +1,7 @@
+with Ada.Containers.Functional_Maps;
+
 with Email; use Email;
 with Keys;  use Keys;
-with Ada.Containers.Functional_Maps;
 
 --  Interface to the token handling mechanism. It can be implemented using
 --  internal databases (like here) or by haching all the required information
@@ -35,12 +36,12 @@ is
 
    function Get_Email
      (Set   : Token_Set;
-      Token : Token_Type) return Email_Address_Type
+      Token : Token_Type) return Email_Id
    with
      Ghost,
      Pre  => Contains (Set, Token);
 
-   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Type with
+   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Id with
      Ghost,
      Pre => Contains (Set, Token);
 
@@ -69,8 +70,8 @@ is
    procedure Get_Add_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
-      Key   : out Key_Type)
+      Email : out Email_Id;
+      Key   : out Key_Id)
    with
    --  Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
@@ -80,14 +81,14 @@ is
             and Is_Add (Seen_Tokens, Token)
             and Email = Get_Email (Seen_Tokens, Token)
             and Key = Get_Key (Seen_Tokens, Token)
-          else Email = No_Email and Key = No_Key)
+          else Email = No_Email_Id and Key = No_Key)
      and Seen_Tokens'Old = Seen_Tokens;
 
    procedure Get_Remove_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
-      Key   : out Key_Type)
+      Email : out Email_Id;
+      Key   : out Key_Id)
    with
   --   Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
@@ -97,7 +98,7 @@ is
             and Is_Remove (Seen_Tokens, Token)
             and Email = Get_Email (Seen_Tokens, Token)
             and Key = Get_Key (Seen_Tokens, Token)
-          else Email = No_Email and Key = No_Key)
+          else Email = No_Email_Id and Key = No_Key)
      and Seen_Tokens'Old = Seen_Tokens;
 
    --  The two procedures below are used to create a token. They may or may not
@@ -108,8 +109,8 @@ is
    --  (modulo the cardinality of the set of seen tokens).
 
    procedure Include_Add_Request
-     (Email : Email_Address_Type;
-      Key   : Key_Type;
+     (Email : Email_Id;
+      Key   : Key_Id;
       Token : out Token_Type)
    with
      Global => (In_Out => (Clock_State, Token_State)),
@@ -122,8 +123,8 @@ is
      and Seen_Tokens'Old <= Seen_Tokens;
 
    procedure Include_Remove_Request
-     (Email : Email_Address_Type;
-      Key   : Key_Type;
+     (Email : Email_Id;
+      Key   : Key_Id;
       Token : out Token_Type)
    with
      Global => (In_Out => (Clock_State, Token_State)),
@@ -153,8 +154,8 @@ private
    --  to link seen tokens to a record holding all the necessary information.
 
    type Token_Info is record
-      Key    : Key_Type;
-      Email  : Email_Address_Type;
+      Key    : Key_Id;
+      Email  : Email_Id;
       Is_Add : Boolean;
    end record;
 
@@ -174,10 +175,10 @@ private
 
    function Get_Email
      (Set   : Token_Set;
-      Token : Token_Type) return Email_Address_Type
+      Token : Token_Type) return Email_Id
    is (Get (Set.Tokens, Token).Email);
 
-   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Type is
+   function Get_Key (Set : Token_Set; Token : Token_Type) return Key_Id is
      (Get (Set.Tokens, Token).Key);
 
    function Is_Add (Set : Token_Set; Token : Token_Type) return Boolean is

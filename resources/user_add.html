@@ -1,14 +1,19 @@
 <!DOCTYPE html>
 <html>
+<head> 
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<link rel="stylesheet" href="/style.css">
+</head>
 <body>
+<div id="nav-placeholder"> </div>
+<script> $(function(){ $("#nav-placeholder").load("nav.html"); }); </script>
 
 <h1>Adding a Key</h1>
 
  <form action="/vks/v1/upload" method="post">
-  Email address:<br>
-  <input type="text" name="email" value="type your email here"><br>
   Public key:<br>
-  <input type="text" name="key" value="Enter your key here"><br><br>
+  <textarea name="keytext" rows="30" cols="80">Enter public key here.</textarea>
+  <br/>
   <input type="submit" value="Submit">
 </form> 
 

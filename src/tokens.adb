@@ -10,8 +10,8 @@ is
    --  Containers used for our real datastructure
 
    type DB_Entry_Type is record
-      Key   : Key_Type;
-      Email : Email_Address_Type;
+      Key   : Key_Id;
+      Email : Email_Id;
    end record;
 
    package Request_Maps is new Ada.Containers.Formal_Hashed_Maps
@@ -64,11 +64,11 @@ is
    procedure Get_Add_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
-      Key   : out Key_Type)
+      Email : out Email_Id;
+      Key   : out Key_Id)
    is
       use Request_Maps;
-      C : Cursor := Find (Pending_Add_Map, Token);
+      C : constant Cursor := Find (Pending_Add_Map, Token);
    begin
       if C /= No_Element then
          declare
@@ -79,7 +79,7 @@ is
             Valid := True;
          end;
       else
-         Email := No_Email;
+         Email := No_Email_Id;
          Key := No_Key;
          Valid := False;
       end if;
@@ -92,11 +92,11 @@ is
    procedure Get_Remove_Info
      (Token : Token_Type;
       Valid : out Boolean;
-      Email : out Email_Address_Type;
-      Key   : out Key_Type)
+      Email : out Email_Id;
+      Key   : out Key_Id)
    is
       use Request_Maps;
-      C : Cursor := Find (Pending_Remove_Map, Token);
+      C : constant Cursor := Find (Pending_Remove_Map, Token);
    begin
       if C /= No_Element then
          declare
@@ -107,7 +107,7 @@ is
             Valid := True;
          end;
       else
-         Email := No_Email;
+         Email := No_Email_Id;
          Key := No_Key;
          Valid := False;
       end if;
@@ -118,8 +118,8 @@ is
    -------------------------
 
    procedure Include_Add_Request
-     (Email : Email_Address_Type;
-      Key   : Key_Type;
+     (Email : Email_Id;
+      Key   : Key_Id;
       Token : out Token_Type)
    is
       T : Token_Type;
@@ -143,8 +143,8 @@ is
    ----------------------------
 
    procedure Include_Remove_Request
-     (Email : Email_Address_Type;
-      Key   : Key_Type;
+     (Email : Email_Id;
+      Key   : Key_Id;
       Token : out Token_Type)
    is
       T : Token_Type;

@@ -7,4 +7,8 @@ project Lumos is
 
    for Main use ("web_server.adb");
 
+   package Compiler is
+      for Switches ("Ada") use ("-gnatwa");
+   end Compiler;
+
 end Lumos;
