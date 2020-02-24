@@ -4,7 +4,7 @@ with Email; use Email;
 with Keys;  use Keys;
 
 --  Interface to the token handling mechanism. It can be implemented using
---  internal databases (like here) or by haching all the required information
+--  internal databases (like here) or by hashing all the required information
 --  in the token, assuming they are hard enough to forge.
 
 package Tokens with SPARK_Mode,
@@ -19,9 +19,9 @@ is
    --  The model of our system is a set of seen token. All seen tokens can be
    --  mapped to an email and a key, and we can determine whether they encode
    --  an add or remove request.
-   --  We have used a private type for this datastructure as we cannot
-   --  instanciate a container containing tokens before the full view of token
-   --  is availlable.
+   --  We have used a private type for this data structure as we cannot
+   --  instantiate a container containing tokens before the full view of token
+   --  is available.
 
    type Token_Set is private with Ghost;
 
@@ -68,7 +68,7 @@ is
    --  properties, but not liveness properties.
 
    procedure Get_Add_Info
-     (Token : Token_Type;
+     (Token :     Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
       Key   : out Key_Id)
@@ -76,16 +76,16 @@ is
    --  Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
      Post   => Invariant
-     and (if Valid
-          then Contains (Seen_Tokens, Token)
-            and Is_Add (Seen_Tokens, Token)
-            and Email = Get_Email (Seen_Tokens, Token)
-            and Key = Get_Key (Seen_Tokens, Token)
-          else Email = No_Email_Id and Key = No_Key)
-     and Seen_Tokens'Old = Seen_Tokens;
+        and (if Valid
+             then Contains (Seen_Tokens, Token)
+               and Is_Add (Seen_Tokens, Token)
+               and Email = Get_Email (Seen_Tokens, Token)
+               and Key = Get_Key (Seen_Tokens, Token)
+             else Email = No_Email_Id and Key = No_Key)
+        and Seen_Tokens'Old = Seen_Tokens;
 
    procedure Get_Remove_Info
-     (Token : Token_Type;
+     (Token :     Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
       Key   : out Key_Id)
@@ -93,13 +93,13 @@ is
   --   Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
      Post   => Invariant
-     and (if Valid
-          then Contains (Seen_Tokens, Token)
-            and Is_Remove (Seen_Tokens, Token)
-            and Email = Get_Email (Seen_Tokens, Token)
-            and Key = Get_Key (Seen_Tokens, Token)
-          else Email = No_Email_Id and Key = No_Key)
-     and Seen_Tokens'Old = Seen_Tokens;
+        and (if Valid
+             then Contains (Seen_Tokens, Token)
+               and Is_Remove (Seen_Tokens, Token)
+               and Email = Get_Email (Seen_Tokens, Token)
+               and Key = Get_Key (Seen_Tokens, Token)
+             else Email = No_Email_Id and Key = No_Key)
+        and Seen_Tokens'Old = Seen_Tokens;
 
    --  The two procedures below are used to create a token. They may or may not
    --  read/update the clock state and the token state. We don't specify here
@@ -109,32 +109,32 @@ is
    --  (modulo the cardinality of the set of seen tokens).
 
    procedure Include_Add_Request
-     (Email : Email_Id;
-      Key   : Key_Id;
+     (Email :     Email_Id;
+      Key   :     Key_Id;
       Token : out Token_Type)
    with
      Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
      Post   => Invariant
-     and Contains (Seen_Tokens, Token)
-     and Is_Add (Seen_Tokens, Token)
-     and Email = Get_Email (Seen_Tokens, Token)
-     and Key = Get_Key (Seen_Tokens, Token)
-     and Seen_Tokens'Old <= Seen_Tokens;
+       and Contains (Seen_Tokens, Token)
+       and Is_Add (Seen_Tokens, Token)
+       and Email = Get_Email (Seen_Tokens, Token)
+       and Key = Get_Key (Seen_Tokens, Token)
+       and Seen_Tokens'Old <= Seen_Tokens;
 
    procedure Include_Remove_Request
-     (Email : Email_Id;
-      Key   : Key_Id;
+     (Email :     Email_Id;
+      Key   :     Key_Id;
       Token : out Token_Type)
    with
      Global => (In_Out => (Clock_State, Token_State)),
      Pre    => Invariant,
      Post   => Invariant
-     and Contains (Seen_Tokens, Token)
-     and Is_Remove (Seen_Tokens, Token)
-     and Email = Get_Email (Seen_Tokens, Token)
-     and Key = Get_Key (Seen_Tokens, Token)
-     and Seen_Tokens'Old <= Seen_Tokens;
+       and Contains (Seen_Tokens, Token)
+       and Is_Remove (Seen_Tokens, Token)
+       and Email = Get_Email (Seen_Tokens, Token)
+       and Key = Get_Key (Seen_Tokens, Token)
+       and Seen_Tokens'Old <= Seen_Tokens;
 
    function To_String (T : Token_Type) return String;
    function From_String (T : String) return Token_Type;
@@ -144,8 +144,6 @@ private
    type Token_Type is mod 2 ** 32;
 
    No_Token : constant Token_Type := 0;
-
-   function Token_Hash (H : Token_Type) return Ada.Containers.Hash_Type;
 
    function Token_Hash (H : Token_Type) return Ada.Containers.Hash_Type is
       (Ada.Containers.Hash_Type (H));
@@ -188,6 +186,6 @@ private
      (Token_Type'Image (T));
 
    function From_String (T : String) return Token_Type is
-      (Token_Type'Value (T));
+     (Token_Type'Value (T));
 
 end Tokens;

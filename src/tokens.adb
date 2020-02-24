@@ -18,8 +18,7 @@ is
      (Key_Type => Token_Type,
       Element_Type => DB_Entry_Type,
       Hash => Token_Hash,
-      Equivalent_Keys => "=",
-      "=" => "=");
+      Equivalent_Keys => "=");
 
    Pending_Add_Map    : Request_Maps.Map (100, 100);
    Pending_Remove_Map : Request_Maps.Map (100, 100);
@@ -31,8 +30,7 @@ is
 
    Counter            : Token_Type := 0;
 
-   procedure Create_Token
-     (T  : out Token_Type) with
+   procedure Create_Token (T : out Token_Type) with
      Pre  => Invariant,
      Post => Invariant and not Has_Key (Token_Model.Tokens, T);
 
@@ -62,7 +60,7 @@ is
    ------------------
 
    procedure Get_Add_Info
-     (Token : Token_Type;
+     (Token :     Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
       Key   : out Key_Id)
@@ -75,12 +73,12 @@ is
             Info : DB_Entry_Type renames Element (Pending_Add_Map, C);
          begin
             Email := Info.Email;
-            Key := Info.Key;
+            Key   := Info.Key;
             Valid := True;
          end;
       else
          Email := No_Email_Id;
-         Key := No_Key;
+         Key   := No_Key;
          Valid := False;
       end if;
    end Get_Add_Info;
@@ -90,7 +88,7 @@ is
    ---------------------
 
    procedure Get_Remove_Info
-     (Token : Token_Type;
+     (Token :     Token_Type;
       Valid : out Boolean;
       Email : out Email_Id;
       Key   : out Key_Id)
@@ -103,12 +101,12 @@ is
             Info : DB_Entry_Type renames Element (Pending_Remove_Map, C);
          begin
             Email := Info.Email;
-            Key := Info.Key;
+            Key   := Info.Key;
             Valid := True;
          end;
       else
          Email := No_Email_Id;
-         Key := No_Key;
+         Key   := No_Key;
          Valid := False;
       end if;
    end Get_Remove_Info;
@@ -118,8 +116,8 @@ is
    -------------------------
 
    procedure Include_Add_Request
-     (Email : Email_Id;
-      Key   : Key_Id;
+     (Email :     Email_Id;
+      Key   :     Key_Id;
       Token : out Token_Type)
    is
       T : Token_Type;
@@ -143,8 +141,8 @@ is
    ----------------------------
 
    procedure Include_Remove_Request
-     (Email : Email_Id;
-      Key   : Key_Id;
+     (Email :     Email_Id;
+      Key   :     Key_Id;
       Token : out Token_Type)
    is
       T : Token_Type;
@@ -172,19 +170,20 @@ is
       --  All tokens for pending requests have been seen
 
      ((for all T of Pending_Add_Map =>
-                Has_Key (Token_Model.Tokens, T)
-           and then Request_Maps.Element (Pending_Add_Map, T).Key =
-             Get (Token_Model.Tokens, T).Key
-           and then Request_Maps.Element (Pending_Add_Map, T).Email =
-             Get (Token_Model.Tokens, T).Email
-           and then Get (Token_Model.Tokens, T).Is_Add)
-      and (for all T of Pending_Remove_Map =>
-                Has_Key (Token_Model.Tokens, T)
-           and then Request_Maps.Element (Pending_Remove_Map, T).Key =
-             Get (Token_Model.Tokens, T).Key
-           and then Request_Maps.Element (Pending_Remove_Map, T).Email =
-             Get (Token_Model.Tokens, T).Email
-           and then not Get (Token_Model.Tokens, T).Is_Add));
+         Has_Key (Token_Model.Tokens, T)
+         and then Request_Maps.Element (Pending_Add_Map, T).Key =
+                  Get (Token_Model.Tokens, T).Key
+         and then Request_Maps.Element (Pending_Add_Map, T).Email =
+                  Get (Token_Model.Tokens, T).Email
+         and then Get (Token_Model.Tokens, T).Is_Add)
+      and
+      (for all T of Pending_Remove_Map =>
+         Has_Key (Token_Model.Tokens, T)
+         and then Request_Maps.Element (Pending_Remove_Map, T).Key =
+                  Get (Token_Model.Tokens, T).Key
+         and then Request_Maps.Element (Pending_Remove_Map, T).Email =
+                  Get (Token_Model.Tokens, T).Email
+         and then not Get (Token_Model.Tokens, T).Is_Add));
 
    -----------------
    -- Seen_Tokens --
