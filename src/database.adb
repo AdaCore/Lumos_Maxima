@@ -75,6 +75,7 @@ is
          pragma Loop_Invariant
            (for all I in 1 .. P.Get (Positions (Database), C) - 1 =>
               Element (Model (Database), I).Email /= Email);
+         pragma Loop_Variant (Increases => P.Get (Positions (Database), C));
          declare
             Ent : DB_Entry_Type renames Element (Database, C);
          begin

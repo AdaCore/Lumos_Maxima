@@ -5,6 +5,7 @@ with Database; use Database;
 
 package Server with SPARK_Mode is
    pragma Unevaluated_Use_Of_Old (Allow);
+   pragma Annotate(Gnatprove, Terminating, Server);
    use Database.DB_Entry_Sets;
 
    --  Invariant of the server
