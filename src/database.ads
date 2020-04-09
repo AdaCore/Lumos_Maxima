@@ -47,7 +47,7 @@ is
      Pre            => Invariant,
      Contract_Cases =>
        ((for some Pair of Model => Pair.Email = Email) =>
-              Contains (Model, (Query_Email'Result, Email)),
+          Contains (Model, (Query_Email'Result, Email)),
         others                                         =>
           Query_Email'Result = No_Key);
 
@@ -60,9 +60,9 @@ is
      Global => (In_Out => Database_State),
      Pre    => Invariant and then not Contains (Email, Key),
      Post   => Invariant
-     and Model'Old <= Model
-     and Included_Except (Model, Model'Old, (Key, Email))
-     and Contains (Model, (Key, Email));
+       and Model'Old <= Model
+       and Included_Except (Model, Model'Old, (Key, Email))
+       and Contains (Model, (Key, Email));
 
    procedure Remove_From_Database
      (Email : Email_Id;

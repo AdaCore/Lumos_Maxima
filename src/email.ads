@@ -17,29 +17,30 @@ package Email with SPARK_Mode is
 
    type Number_Set is private with Ghost;
 
-   function Seen_Numbers return Number_Set with
-     Ghost;
+   function Seen_Numbers return Number_Set with Ghost;
 
    function "<=" (Left, Right : Number_Set) return Boolean with Ghost;
 
-   function Contains (Set : Number_Set; Email : Valid_Email_Id)
-                      return Boolean with Ghost;
+   function Contains
+      (Set   : Number_Set;
+       Email : Valid_Email_Id)
+       return Boolean with Ghost;
 
    function Invariant return Boolean with Ghost;
 
-   procedure To_Email_Id (S : String;
-                          Email : out Email_Id)
-     with Pre => S'Length <= 256 and then Invariant,
-     Post =>
-       (Invariant and
-          (if Email /= No_Email_Id then Contains (Seen_Numbers, Email)) and
-            Seen_Numbers'Old <= Seen_Numbers);
+   procedure To_Email_Id
+      (S     : String;
+       Email : out Email_Id)
+   with Pre  => S'Length <= 256 and then Invariant,
+        Post => Invariant
+          and (if Email /= No_Email_Id then Contains (Seen_Numbers, Email))
+          and Seen_Numbers'Old <= Seen_Numbers;
       --  returns No_Email if email address integer could not be created
 
 private
 
-   package Number_Sets is new Ada.Containers.Functional_Sets
-     (Valid_Email_Id);
+   package Number_Sets is
+     new Ada.Containers.Functional_Sets (Valid_Email_Id);
 
    use Number_Sets;
 
@@ -50,7 +51,10 @@ private
    function "<=" (Left, Right : Number_Set) return Boolean is
      (Left.Numbers <= Right.Numbers);
 
-   function Contains (Set : Number_Set; Email : Valid_Email_Id)
-     return Boolean is (Contains (Set.Numbers, Email));
+   function Contains
+     (Set   : Number_Set;
+      Email : Valid_Email_Id)
+      return Boolean
+   is (Contains (Set.Numbers, Email));
 
 end Email;

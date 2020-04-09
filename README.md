@@ -12,18 +12,15 @@ Claude Marché, Sylvain Dailler, Johannes Kanig, Claire Dross, Yannick Moy
 
 ## Description:
 
-Our objective is to redevelop HAGRID in SPARK, a subset of the Ada
-programming language targeted at formal verification, and to prove the
-following properties about the code:
+The repository contains a toy implementation in SPARK (a subset of the ADa
+programming language targeted at formal verification) of a key server, similar
+to HAGRID. We proved the following properties of the core functionality of the
+code:
 
  - absence of runtime errors
  - correct data and information flows
  - functional correctness
- - security (privacy?) properties that can be encoded in data/control contracts
-
-We also plan to evaluate the efficiency of the executable code to
-compare it with the original implementation in Rust, and to
-demonstrate its usability on a variety of hardware platforms.
+ - termination
 
 ## Collaborations:
 
