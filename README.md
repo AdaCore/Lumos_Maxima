@@ -24,6 +24,13 @@ code:
 
 ![Diagram for SPARK coverage](diagram.png?raw=true "Diagram for SPARK coverage")
 
+## Future Work (Not done yet)
+
+ - persistent data storage (currently the data is stored in memory)
+ - putting all info into the token instead of maintaining a map of tokens
+ - encrypting the token to avoid forging data
+ - absence of data races (might be out of scope for SPARK)
+
 ## Collaborations:
 
 We are interested in collaborating on the best approach to achieve the
