@@ -36,5 +36,7 @@ with other languages and tools.
 If you want to know more about SPARK, please use these resources:
 
 [Interactive Website to learn Ada and SPARK](https://learn.adacore.com/)
+
 [SPARK User's guide](https://docs.adacore.com/spark2014-docs/html/ug/)
+
 [SPARK source code](https://github.com/AdaCore/spark2014)
