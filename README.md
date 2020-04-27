@@ -12,7 +12,7 @@ Claude Marché, Sylvain Dailler, Johannes Kanig, Claire Dross, Yannick Moy
 
 ## Description:
 
-The repository contains a toy implementation in SPARK (a subset of the ADa
+The repository contains a toy implementation in SPARK (a subset of the Ada
 programming language targeted at formal verification) of a key server, similar
 to HAGRID. We proved the following properties of the core functionality of the
 code:
@@ -22,9 +22,21 @@ code:
  - functional correctness
  - termination
 
+![Diagram for SPARK coverage](diagram.png?raw=true "Diagram for SPARK coverage")
+
 ## Collaborations:
 
 We are interested in collaborating on the best approach to achieve the
 above goals, either with people willing to contribute to the
 project directly, or with people sharing the same overall goals
 with other languages and tools.
+
+## Resources:
+
+If you want to know more about SPARK, please use these resources:
+
+[Interactive Website to learn Ada and SPARK](https://learn.adacore.com/)
+
+[SPARK User's guide](https://docs.adacore.com/spark2014-docs/html/ug/)
+
+[SPARK source code](https://github.com/AdaCore/spark2014)
