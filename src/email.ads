@@ -24,7 +24,9 @@ package Email with SPARK_Mode is
    function Contains
       (Set   : Number_Set;
        Email : Valid_Email_Id)
-       return Boolean with Ghost;
+       return Boolean
+   with Ghost,
+     Annotate => (GNATprove, Inline_For_proof);
 
    function Invariant return Boolean with Ghost;
 
