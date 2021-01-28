@@ -1,6 +1,13 @@
 # Lumos Maxima
 This is the repository of the *Lumos Maxima* team participating to the [VerifyThis 2020 Collaborative Long-term Verification Challenge](https://verifythis.github.io/)
 
+IMPORTANT: Please note that this project exists as part of a blog entry,
+article, or other similar material by AdaCore. It is provided for
+convenient access to the software described therein. As such, it is not
+updated regularly and may, over time, become inconsistent with the
+latest versions of any tools and libraries it utilizes (for example, the
+Ada Drivers Library).
+
 ## Contacts:
 [Yannick Moy](mailto:"<lastname>@adacore.com") and [Claude Marché](mailto:"<firstname>.<lastname>@inria.fr")
 
